@@ -365,8 +365,12 @@ In seq.default(from = "Stately", to = "crossed", by = 3) :
 > 
 > 
 > #Summary for Subsetting Vectors by [index notation] followed by extraction 
+
 > #1: create the vector via function v1<- c("sentence" or starting number:ending number, etc)
+
 > #2: If there is puntuation to remove, use function gsub("[[:punct:]]","",v1)
+
 > #3: Determine exact indext notation of each unit via function str_split("v1", "bound shown for unit", "number of subunits per unit to be shown", "FALSE for Vecotor or TRUE for matrix")
+
 > #4: To extract specific units from the vector, use function v1[seq(from = "minimum index notation", to = "max index notation", by = "every nth unit to be extracted")]
 ```
