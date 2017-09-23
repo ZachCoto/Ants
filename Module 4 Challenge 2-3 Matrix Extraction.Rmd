@@ -318,7 +318,7 @@ y
 [5,]  146  141  136  131  126
 > #These are all index values for z=3,a*=3
 
->**#Summary for Matrix Extraction** 
+**#Summary for Matrix Extraction** 
 >
 >**#1) Construct a matrix via function m <- matrix(data = "1:80"data range"", nrow = "number of rows", ncol = "number of columns, byrow = FALSE if organized by column)**
 >
