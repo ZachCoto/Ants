@@ -9,9 +9,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
- #To make the following into a vector: Stately, plump Buck Mulligan came from the stairhead, bearing a bowl of lather on which a mirror and a razor lay crossed
+To make the following into a vector: Stately, plump Buck Mulligan came from the stairhead, bearing a bowl of lather on which a mirror and a razor lay crossed
  
  v1<- c("Stately", "plump", "Buck", "Mulligan", "came", "from", "the", "stairhead", "bearing", "a", "bowl", "of", "lather", "on", "which", "a", "mirror", "and", "a", "razor", "lay", "crossed")
  v1
@@ -19,68 +17,61 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
  [7] "the"       "stairhead" "bearing"   "a"         "bowl"      "of"       
 [13] "lather"    "on"        "which"     "a"         "mirror"    "and"      
 [19] "a"         "razor"     "lay"       "crossed"  
- V1<- c(Stately, plump Buck Mulligan came from the stairhead, bearing a bowl of lather on which a mirror and a razor lay crossed)
+
+ v1<- c(Stately, plump Buck Mulligan came from the stairhead, bearing a bowl of lather on which a mirror and a razor lay crossed)
 Error: unexpected symbol in "V1<- c(Stately, plump Buck"
  v1
  [1] "Stately"   "plump"     "Buck"      "Mulligan"  "came"      "from"     
  [7] "the"       "stairhead" "bearing"   "a"         "bowl"      "of"       
 [13] "lather"    "on"        "which"     "a"         "mirror"    "and"      
-[19] "a"         "razor"     "lay"       "crossed"  
+[19] "a"         "razor"     "lay"       "crossed" 
+
  #To extract every third element of the above vector
  #First, check to see if it is sub-dividable
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
  str_split()
 Error in str_split() : could not find function "str_split"
  ?str_split()
 Error in .helpForCall(topicExpr, parent.frame()) : 
-  no methods for 'str_split' and no documentation for it as a function
+ no methods for 'str_split' and no documentation for it as a function
  str_split(v1)
 Error in str_split(v1) : could not find function "str_split"
  library("stringr", lib.loc="~/R/win-library/3.4")
-> ?str_split
-> #Needed to turn STRINGR ON
-> #str_split(vector, pattern, piece number, False[default]=vectorlist and True=matrix)
-> str_split(v1, 3, 22)
+ ?str_split
+ 
+ #Needed to turn STRINGR ON
+ #str_split(vector, pattern, piece number, False[default]=vectorlist and True=matrix)
+ str_split(v1, 3, 22)
 Error in UseMethod("type") : 
   no applicable method for 'type' applied to an object of class "c('double', 'numeric')"
-> gsub("[[:punct:]]","",*v1*)
+gsub("[[:punct:]]","",*v1*)
 Error: unexpected '*' in "gsub("[[:punct:]]","",*"
-> gsub("[[:punct:]]","",v1)
+gsub("[[:punct:]]","",v1)
  [1] "Stately"   "plump"     "Buck"      "Mulligan"  "came"      "from"     
  [7] "the"       "stairhead" "bearing"   "a"         "bowl"      "of"       
 [13] "lather"    "on"        "which"     "a"         "mirror"    "and"      
 [19] "a"         "razor"     "lay"       "crossed"  
-> #gsub removes punctuation from vector
-> 
-> str_split(v1, 3, 22)
+#gsub removes punctuation from vector
+
+str_split(v1, 3, 22)
 Error in UseMethod("type") : 
   no applicable method for 'type' applied to an object of class "c('double', 'numeric')"
-> str_split(v1, 3, 7)
+str_split(v1, 3, 7)
 Error in UseMethod("type") : 
   no applicable method for 'type' applied to an object of class "c('double', 'numeric')"
-> 
-> str_split(v1, "", 22)
+ 
+str_split(v1, "", 22)
 [[1]]
 [1] "S" "t" "a" "t" "e" "l" "y"
 
-```{r cars}
-summary(cars)
-```
 [[2]]
 [1] "p" "l" "u" "m" "p"
 
-## Including Plots
 [[3]]
 [1] "B" "u" "c" "k"
 
-You can also embed plots, for example:
 [[4]]
 [1] "M" "u" "l" "l" "i" "g" "a" "n"
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 [[5]]
 [1] "c" "a" "m" "e"
 
@@ -202,11 +193,11 @@ plot(pressure)
 [[22]]
 [1] "c" "r" "o" "s" "s" "e" "d"
 
-> #"pattern" indicates the subunit of a string "piece" unit that you will be constructing for the entire vector 
-> #so here, setting pattern = "" with 22 pieces (or units) divides words into "letters"
-> #if you set n = 11
-> 
-> str_split(v1,"", 11)
+ #"pattern" indicates the subunit of a string "piece" unit that you will be constructing for the entire vector 
+ #so here, setting pattern = "" with 22 pieces (or units) divides words into "letters"
+ #if you set n = 11
+ 
+str_split(v1,"", 11)
 [[1]]
 [1] "S" "t" "a" "t" "e" "l" "y"
 
@@ -216,7 +207,6 @@ plot(pressure)
 [[3]]
 [1] "B" "u" "c" "k"
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 [[4]]
 [1] "M" "u" "l" "l" "i" "g" "a" "n"
 
@@ -274,8 +264,8 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 [[22]]
 [1] "c" "r" "o" "s" "s" "e" "d"
 
-> #set n = 1
-> str_split(v1,"", 1)
+#set n = 1
+str_split(v1,"", 1)
 [[1]]
 [1] "Stately"
 
@@ -342,31 +332,37 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 [[22]]
 [1] "crossed"
 
-> #so, n = the number of subunits per unit (piece). The number of units has already been defined as 22 because the vector has it split up this way
-> # Setting n to the lowest value of the list, namely 1, allows units to be complete words.
-> #Then, to extract every third unit of the vector:
-> v1[seq(from = Stately, to = crossed, by = 3)]
+#so, n = the number of subunits per unit (piece). The number of units has already been defined as 22 because the vector has it split up this way
+
+# Setting n to the lowest value of the list, namely 1, allows units to be complete words.
+
+#Then, to extract every third unit of the vector:
+v1[seq(from = Stately, to = crossed, by = 3)]
 Error in seq(from = Stately, to = crossed, by = 3) : 
   object 'Stately' not found
-> v1[seq(from = "Stately", to = "crossed", by = 3)]
+v1[seq(from = "Stately", to = "crossed", by = 3)]
 Error in seq.default(from = "Stately", to = "crossed", by = 3) : 
   'from' must be a finite number
 In addition: Warning message:
 In seq.default(from = "Stately", to = "crossed", by = 3) :
   NAs introduced by coercion
-> v1[seq(from = 1, to = 22, by = 3)]
+v1[seq(from = 1, to = 22, by = 3)]
 [1] "Stately"  "Mulligan" "the"      "a"        "lather"   "a"        "a"       
 [8] "crossed" 
-> v1[seq(from = 0, to = 22, by = 3)]
+v1[seq(from = 0, to = 22, by = 3)]
 [1] "Buck"    "from"    "bearing" "of"      "which"   "and"     "lay"    
-> 
-> #So, for extracting every x unit from a vector, use the function "vector"[seq(from = 0, to = final unit, by x unit)]
-> #Because I wanted every 3 and not including the first unit, I start with 0.
-> 
-> 
+
+#So, for extracting every x unit from a vector, use the function "vector"[seq(from = 0, to = final unit, by x unit)]
+#Because I wanted every 3 and not including the first unit, I start with 0.
+
+
 > #Summary for Subsetting Vectors by [index notation] followed by extraction 
+
 > #1: create the vector via function v1<- c("sentence" or starting number:ending number, etc)
+
 > #2: If there is puntuation to remove, use function gsub("[[:punct:]]","",v1)
+
 > #3: Determine exact indext notation of each unit via function str_split("v1", "bound shown for unit", "number of subunits per unit to be shown", "FALSE for Vecotor or TRUE for matrix")
+
 > #4: To extract specific units from the vector, use function v1[seq(from = "minimum index notation", to = "max index notation", by = "every nth unit to be extracted")]
 ```
