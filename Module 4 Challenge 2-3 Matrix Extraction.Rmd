@@ -105,12 +105,14 @@ x
      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
 [1,]    6   14   22   30   38   46   54   62   70    78
 [2,]    8   16   24   32   40   48   56   64   72    80
-
+```
 >#Note: c does not represent "column". The difference between rows and columns of a matrix is indicated by placement of the comma outside of the index values
 
   
 **#>exract all indicies from row 2, column 2 to row 6, column 9**
-  
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 x<-m[(2,2):(6,9)]
 Error: unexpected ',' in "x<-m[(2,"
 x<-m[2,2:6,9]
@@ -129,11 +131,14 @@ x
 [4,]   13   21   29   37   45   53   61   69
 [5,]   14   22   30   38   46   54   62   70
 
+```
 >#note: c(x,z),c(a,c)produces a submatrix of possible row and column values indicated. By using x:z and a:c, this will produce a submatrix of all values including and between those indicated within the parentheses
 
   
 **#Construct a 4-dimensional, 400 element array (5 x 5 x 4 x 4) named a consisting of the numbers 400 to 1**
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 a <- array(data = 400:1, dim = c(5,5,4,4))
 a
 , , 1, 1
@@ -322,7 +327,7 @@ y
 >
 >**#1) Construct a matrix via function m <- matrix(data = "1:80"data range"", nrow = "number of rows", ncol = "number of columns, byrow = FALSE if organized by column)**
 >
->**#2) Construct an array via function a <- array(data = "1:90"data range"", dim = c(dim1, dim2, dim 3...))*
+>**#2) Construct an array via function a <- array(data = "1:90"data range"", dim = c(dim1, dim2, dim 3...))**
 >
 >**#3) Subset/assign a single index value via function x<-m[row value, column value]**
 >
@@ -332,7 +337,7 @@ y
 >
 >**#6) Subset/assign specific groups of values via functions x<-m[c("row1", "row2"..),c("column1","column2"...)] or x<-m[c("starting row":"ending row""),c("2"starting column":"ending column")]. These will construct a submatrix from all possible row/column values indicated.**
 >
-**#7) Subset/assign specific or groups of values from an array, you simply need to specify any desired dimensions via function y<-a[dim1,dim2,dim3,dim4...]. Not specifying one dimension that is present in the array will mean that all values of that dimension will be subset. For a continuous range of values per dimension, simply use ":" between desired values of a given dimension**
+>**#7) Subset/assign specific or groups of values from an array, you simply need to specify any desired dimensions via function y<-a[dim1,dim2,dim3,dim4...]. Not specifying one dimension that is present in the array will mean that all values of that dimension will be subset. For a continuous range of values per dimension, simply use ":" between desired values of a given dimension**
 
 
 
