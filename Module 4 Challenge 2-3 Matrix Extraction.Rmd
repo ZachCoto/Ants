@@ -316,7 +316,8 @@ y
 [4,]  147  142  137  132  127
 [5,]  146  141  136  131  126
 > #These are all index values for z=3,a*=3
-
+```
+  
 **#Summary for Matrix Extraction** 
 >
 >**#1) Construct a matrix via function m <- matrix(data = "1:80"data range"", nrow = "number of rows", ncol = "number of columns, byrow = FALSE if organized by column)**
@@ -332,7 +333,7 @@ y
 >**#6) Subset/assign specific groups of values via functions x<-m[c("row1", "row2"..),c("column1","column2"...)] or x<-m[c("starting row":"ending row""),c("2"starting column":"ending column")]. These will construct a submatrix from all possible row/column values indicated.**
 >
 **#7) Subset/assign specific or groups of values from an array, you simply need to specify any desired dimensions via function y<-a[dim1,dim2,dim3,dim4...]. Not specifying one dimension that is present in the array will mean that all values of that dimension will be subset. For a continuous range of values per dimension, simply use ":" between desired values of a given dimension**
-```
+
 
 
   
