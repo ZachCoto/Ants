@@ -431,10 +431,12 @@ $Anthropoidea$Catarrhini[[3]]
 
 [[2]]$Lemuroidea[[5]]
 [1] "Daubentoniidae"
-
-
-
+```
+**#Final List of Primate Phylogeny**
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 > names(Primates)<-c("Haplorhini","Strepsirhini")
+
 > Primates
 $Haplorhini
 $Haplorhini$Tarsioidea
@@ -453,7 +455,6 @@ $Haplorhini$Anthropoidea$Platyrrhini[[2]]
 $Haplorhini$Anthropoidea$Platyrrhini[[3]]
 [1] "Pitheciidae"
 
-
 $Haplorhini$Anthropoidea$Catarrhini
 $Haplorhini$Anthropoidea$Catarrhini[[1]]
 [1] "Cercopithecidae"
@@ -463,7 +464,6 @@ $Haplorhini$Anthropoidea$Catarrhini[[2]]
 
 $Haplorhini$Anthropoidea$Catarrhini[[3]]
 [1] "Hominidae"
-
 
 
 
