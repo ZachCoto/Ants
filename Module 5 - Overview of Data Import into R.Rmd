@@ -1,0 +1,302 @@
+---
+title: "Module 5 - Overview of Data Import into R"
+author: "Zach C"
+date: "September 27, 2017"
+output: html_document
+---
+>#1 file.choose() function allows you to specify a file for R
+>
+>#2 where f<-"specified file", 
+  >read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE) allows you   to read a data file as a table
+    >header = whether a file contains names of variables as first line
+    >sep = the character used to separate values
+    >S.A.F = whther vectors are converted to factors
+>  
+>#3 Where d <- read.table function
+  >head(d) function lists the first 6 lines of data
+  >head(d)[1:10]) lists the first 10 lines of data
+  >tail(d) and tail(d)[1:10] does the same for the last lines of data
+  >class(d) states class of data table
+  
+>#4 Using Readr Package
+  >d <- read_tsv(f, col_names = TRUE) function for reading tab-separated files
+  
+>#5 using Readxl allows loading an excel file  
+  >d <- read_excel(f, sheet = 1, col_names = TRUE)
+  
+>#6 Loading Files from a remote repository (e.g. reading directly from Github)
+  >use curl package [library(curl)]
+    >f <- curl("url of data")
+    >d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE) for csv
+    >d <- read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE) for     txt or tsv
+  >use readr package [library(readr)]
+    >f <"url of data"
+    >d <- read_csv(f, col_names = TRUE) for csv
+    d <- read_tsv(f, col_names = TRUE) for tsv
+  >read file from drop box [rdrop2]
+    >require(rdrop2)
+    >drop_auth() to open a browser dialog box to ask for authorization...
+    >drop_dir()  lists the contents of your dropbox folder
+    >f <- "CPDS-1960-2014-reduced.csv"  name of the file to read from
+    >f <- drop_search(f)  searches your dropbox directory for file or directory      names
+    >f <- f$path  # $path is the location of the results returned above
+    >d <- drop_read_csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+  >Download file from dropbox
+    >filename <- "CPDS-1960-2014-reduced.csv"  # name of file to download
+    >f <- drop_search(filename)  # searches your dropbox directory for that file     or directory name
+    >f <- f$path  # $path is the location of the results returned above
+    drop_get(f, local_file = paste0("~/Desktop/", filename), overwrite = TRUE,       progress = TRUE)# this will save the file to the desktop
+  >Download file from Excel
+    >filename <- "CPDS-1960-2014-reduced.xlsx"
+    >f <- drop_search(filename)  # searches your dropbox directory for file or       directory names
+    >f <- f$path  # $path is the location of the results returned above
+    >drop_get(f, local_file = paste0("~/Desktop/", filename), overwrite = TRUE,      >progress = TRUE)
+  >Download file from Google Sheets 
+    >gs_title("CPDS-1960-2014-reduced")  #identifies the sheet you wish to           download
+    >gs_download("CPDS-1960-2014-reduced", to = "CPDS-1960-2014-reduced.xlsx")
+    ># in this case, should save to your working directory
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#Extracting CPDS text file
+#1
+f<-file.choose()
+f
+[1] "C:\\Users\\BW\\Desktop\\Rinfo\\Data sets and text files\\CPDS-1960-2014-reduced-txt.txt"
+====
+#2
+ read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+Error in scan(file = file, what = what, sep = sep, quote = quote, dec = dec,  : 
+  line 110 did not have 20 elements
+
+  need to use "fill = TRUE"to allow black fields to be added
+
+> read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill=TRUE)
+     year        country gov_right1 gov_cent1 gov_left1 gov_party      elect vturn
+1    1960      Australia     100.00      0.00      0.00         1             95.5
+2    1961      Australia     100.00      0.00      0.00         1 09/12/1961  95.3
+3    1962      Australia     100.00      0.00      0.00         1             95.3
+4    1963      Australia     100.00      0.00      0.00         1 30/11/1963  95.7
+5    1964      Australia     100.00      0.00      0.00         1             95.7
+6    1965      Australia     100.00      0.00      0.00         1             95.7
+7    1966      Australia     100.00      0.00      0.00         1 26/11/1966  95.1
+8    1967      Australia     100.00      0.00      0.00         1             95.1
+9    1968      Australia     100.00      0.00      0.00         1             95.1
+10   1969      Australia     100.00      0.00      0.00         1 25/10/1969  95.0
+11   1970      Australia     100.00      0.00      0.00         1             95.0
+12   1971      Australia     100.00      0.00      0.00         1             95.0
+13   1972      Australia      96.45      0.00      3.55         2 02/12/1972  95.4
+14   1973      Australia       0.00      0.00    100.00         5             95.4
+15   1974      Australia       0.00      0.00    100.00         5 18/05/1974  95.4
+16   1975      Australia      13.70      0.00     86.30         4 13/12/1975  95.4
+17   1976      Australia     100.00      0.00      0.00         1             95.4
+18   1977      Australia     100.00      0.00      0.00         1 10/12/1977  95.0
+19   1978      Australia     100.00      0.00      0.00         1             95.0
+20   1979      Australia     100.00      0.00      0.00         1             95.0
+21   1980      Australia     100.00      0.00      0.00         1 18/10/1980  94.4
+22   1981      Australia     100.00      0.00      0.00         1             94.4
+23   1982      Australia     100.00      0.00      0.00         1             94.4
+24   1983      Australia      18.90      0.00     81.10         4 05/03/1983  94.6
+25   1984      Australia       0.00      0.00    100.00         5 01/12/1984  94.2
+26   1985      Australia       0.00      0.00    100.00         5             94.2
+27   1986      Australia       0.00      0.00    100.00         5             94.2
+28   1987      Australia       0.00      0.00    100.00         5 11/07/1987  93.8
+29   1988      Australia       0.00      0.00    100.00         5             93.8
+30   1989      Australia       0.00      0.00    100.00         5             93.8
+31   1990      Australia       0.00      0.00    100.00         5 24/03/1990  95.3
+32   1991      Australia       0.00      0.00    100.00         5             95.3
+33   1992      Australia       0.00      0.00    100.00         5             95.3
+34   1993      Australia       0.00      0.00    100.00         5 13/03/1993  95.8
+35   1994      Australia       0.00      0.00    100.00         5             95.8
+36   1995      Australia       0.00      0.00    100.00         5             95.8
+37   1996      Australia      80.87      0.00     19.13         2 02/03/1996  95.8
+38   1997      Australia     100.00      0.00      0.00         1             95.8
+39   1998      Australia     100.00      0.00      0.00         1 03/10/1998  95.0
+40   1999      Australia     100.00      0.00      0.00         1             95.0
+41   2000      Australia     100.00      0.00      0.00         1             95.0
+42   2001      Australia     100.00      0.00      0.00         1 10/11/2001  94.9
+43   2002      Australia     100.00      0.00      0.00         1             94.9
+44   2003      Australia     100.00      0.00      0.00         1             94.9
+45   2004      Australia     100.00      0.00      0.00         1 09/10/2004  94.3
+46   2005      Australia     100.00      0.00      0.00         1             94.3
+47   2006      Australia     100.00      0.00      0.00         1             94.3
+48   2007      Australia      92.05      0.00      7.95         2 24/11/2007  94.8
+49   2008      Australia       0.00      0.00    100.00         5             94.8
+50   2009      Australia       0.00      0.00    100.00         5             94.8
+     womenpar realgdpgr inflation debt_hist deficit  ttl_labf labfopar unemp
+1         0.0        NA      3.73     40.15    0.46   4215.00       NA  1.25
+2         0.0     -0.64      2.29     38.62   -0.36   4286.00       NA  2.46
+3         0.0      5.77     -0.32     38.75   -0.79   4382.00       NA  2.32
+4         0.0      6.01      0.64     37.34   -0.51   4484.00       NA  1.87
+5         0.0      6.26      2.87     35.31   -0.08   4610.80    67.24  1.45
+6         0.0      4.99      3.41     53.99   -0.73   4745.95    67.66  1.36
+7         0.8      2.93      3.29     52.51   -1.81   4930.63    68.54  1.69
+8         0.8      7.19      3.48     49.96   -1.81   5100.53    69.45  1.82
+9         0.8      5.30      2.52     48.69   -1.35   5222.05    69.55  1.65
+10        0.0      6.25      3.28     45.50   -0.15   5367.73    69.80  1.57
+11        0.0      6.95      3.44     43.21   -0.07   5562.05    70.78  1.49
+12        0.0      3.86      6.14     39.89   -0.49   5707.93    69.36  1.74
+13        0.0      2.29      6.02     37.85   -0.89   5833.48    69.51  2.62
+14        0.0      4.36      9.09     33.78   -0.18   5974.30    69.93  1.89
+15        0.8      1.61     15.42     29.31   -1.00   6119.78    70.20  2.46
+16        0.0      2.42     15.16     29.19   -2.91   6237.83    70.39  4.77
+17        0.0      3.89     13.32     28.42   -3.02   6313.03    70.20  4.95
+18        0.0      1.48     12.31     27.40   -3.51   6428.10    70.32  5.91
+19        0.0      2.01      8.00     28.55   -4.18   6466.35    69.61  6.50
+20        0.0      4.62      9.12     29.19   -2.88   6589.04    69.89  6.12
+21        2.4      2.73     10.14     27.15   -2.28   6764.88    70.68  6.19
+22        2.4      4.18      9.49     24.09   -2.69   6881.34    70.63  5.88
+23        2.4     -0.35     11.35     22.18   -3.74   6980.82    70.23  7.05
+24        4.8     -0.16     10.04     24.09   -4.92   7068.41    69.94 10.35
+25        5.4      6.52      3.96     26.00   -4.87   7205.07    70.16  8.92
+26        5.4      5.11      6.73     28.04   -4.89   7369.29    70.58  8.26
+27        5.4      1.94      9.05     29.82   -4.13   7656.61    71.98  8.08
+28        6.1      5.26      8.53     28.17   -2.38   7825.60    72.21  8.11
+29        6.1      4.53      7.22     31.61   -0.72   8043.46    72.85  7.23
+30        6.1      4.23      7.53     25.04    0.61   8296.84    73.80  6.17
+31        6.8      1.38      7.33     24.94   -0.32   8511.62    74.55  6.93
+32        6.8     -1.32      3.18     30.90   -2.89   8551.16    74.05  9.58
+33        6.8      2.98      1.01     35.04   -4.46   8618.93    73.89 10.73
+34        8.8      4.18      1.75     40.61   -2.80   8650.14    73.61 10.87
+35        8.8      4.60      1.97     40.41   -2.41   8809.63    74.31  9.72
+36        9.5      3.54      4.63     41.86   -1.68   9003.52    75.12  8.47
+37       15.5      3.93      2.62     39.45   -0.44   9127.64    75.20  8.51
+38       15.5      3.89      0.22     37.04    0.88   9187.74    74.83  8.36
+39       22.4      4.93      0.86     33.61    2.53   9281.54    74.77  7.68
+40       22.4      4.09      1.48     27.19    2.60   9366.43    74.57  6.87
+41       22.4      3.50      4.46     25.14    1.50   9549.38    75.07  6.28
+42       25.3      2.52      4.41     24.22    0.03   9716.56    75.35  6.74
+43       25.3      3.98      2.98     22.87    1.57   9865.53    75.51  6.37
+44       25.3      3.01      2.73     20.37    2.67  10038.74    75.82  5.93
+45       24.7      3.93      2.34     20.79    1.79  10155.41    75.79  5.39
+46       24.7      3.23      2.69     20.67    2.23  10455.08    76.98  5.03
+47       24.7      2.70      3.56     19.66    2.56  10683.72    77.50  4.78
+48       26.7      4.55      2.33     19.51    1.97  10964.12    78.07  4.38
+49       26.7      2.46      4.35     20.48   -0.29  11258.63    78.50  4.23
+50       27.3      1.82      1.77     26.40   -4.03  11498.82    78.53  5.56
+           pop  pop15_64    pop65 elderly
+1     10275.00   6296.50   874.90    8.51
+2     10508.20   6428.60   894.60    8.51
+3     10700.50   6571.50   913.60    8.54
+4     10906.90   6710.90   933.00    8.55
+5     11121.60   6857.30   948.10    8.52
+6     11340.90   7014.60   966.30    8.52
+7     11599.50   7193.52   986.27    8.50
+8     11799.08   7344.23   999.60    8.47
+9     12008.63   7508.21  1014.01    8.44
+10    12263.01   7689.76  1026.69    8.37
+11    12507.35   7857.98  1043.75    8.35
+12    13067.26   8229.62  1090.37    8.34
+13    13303.66   8392.63  1118.31    8.41
+14    13504.54   8543.09  1148.69    8.51
+15    13722.57   8717.15  1181.16    8.61
+16    13893.00   8861.80  1211.57    8.72
+17    14033.08   8993.16  1252.83    8.93
+18    14192.23   9141.01  1287.58    9.07
+19    14359.25   9289.38  1326.81    9.24
+20    14515.73   9427.57  1369.73    9.44
+21    14695.36   9571.09  1413.28    9.62
+22    14923.26   9742.72  1455.00    9.75
+23    15184.25   9940.49  1498.77    9.87
+24    15393.47  10106.71  1535.76    9.98
+25    15579.39  10269.80  1573.79   10.10
+26    15788.31  10441.74  1621.03   10.27
+27    16018.35  10636.72  1682.11   10.50
+28    16263.87  10837.24  1739.29   10.69
+29    16532.16  11041.75  1791.38   10.84
+30    16814.42  11243.00  1846.50   10.98
+31    17065.13  11416.75  1893.38   11.10
+32    17284.04  11547.79  1950.72   11.29
+33    17479.00  11664.00  2002.00   11.45
+34    17635.00  11751.00  2053.00   11.64
+35    17805.00  11855.00  2100.00   11.79
+36    18005.00  11986.00  2143.00   11.90
+37    18225.00  12138.00  2192.00   12.03
+38    18423.00  12278.00  2237.00   12.14
+39    18608.00  12413.00  2279.00   12.25
+40    18812.00  12561.00  2322.00   12.34
+41    19029.00  12721.00  2364.00   12.42
+42    19275.00  12895.00  2419.00   12.55
+43    19495.00  13065.00  2466.00   12.65
+44    19721.00  13240.00  2511.00   12.73
+45    19933.00  13400.00  2559.00   12.84
+46    20177.00  13582.00  2612.00   12.95
+47    20451.00  13785.00  2664.00   13.03
+48    20828.00  14044.00  2737.00   13.14
+49    21249.00  14343.00  2805.00   13.20
+50    21692.00  14643.00  2891.00   13.33
+ [ reached getOption("max.print") -- omitted 1528 rows ]
+====
+#4
+>d <- read_tsv(f, col_names = TRUE)
+>head(d)
+====
+#5  
+> file.choose()
+[1] "C:\\Users\\BW\\Desktop\\Rinfo\\Data sets and text files\\CPDS-1960-2014-reduced-xlsx.xlsx"
+> f<-"C:\\Users\\BW\\Desktop\\Rinfo\\Data sets and text files\\CPDS-1960-2014-reduced-xlsx.xlsx"
+> d <- read_excel(f, sheet = 1, col_names = TRUE)
+> d
+# A tibble: 1,578 x 20
+    year   country gov_right1 gov_cent1 gov_left1 gov_party      elect vturn womenpar
+   <dbl>     <chr>      <dbl>     <dbl>     <dbl>     <dbl>     <dttm> <dbl>    <dbl>
+ 1  1960 Australia        100         0         0         1         NA  95.5      0.0
+ 2  1961 Australia        100         0         0         1 1961-12-09  95.3      0.0
+ 3  1962 Australia        100         0         0         1         NA  95.3      0.0
+ 4  1963 Australia        100         0         0         1 1963-11-30  95.7      0.0
+ 5  1964 Australia        100         0         0         1         NA  95.7      0.0
+ 6  1965 Australia        100         0         0         1         NA  95.7      0.0
+ 7  1966 Australia        100         0         0         1 1966-11-26  95.1      0.8
+ 8  1967 Australia        100         0         0         1         NA  95.1      0.8
+ 9  1968 Australia        100         0         0         1         NA  95.1      0.8
+10  1969 Australia        100         0         0         1 1969-10-25  95.0      0.0
+# ... with 1,568 more rows, and 11 more variables: realgdpgr <dbl>, inflation <dbl>,
+#   debt_hist <dbl>, deficit <dbl>, ttl_labf <dbl>, labfopar <dbl>, unemp <dbl>,
+#   pop <dbl>, pop15_64 <dbl>, pop65 <dbl>, elderly <dbl>
+====
+  
+#6
+library(curl)
+Attaching package: ‘curl’
+
+The following object is masked from ‘package:readr’:
+
+    parse_date
+
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/CPDS-1960-2014-reduced.csv")
+
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+head(d)
+
+  year   country gov_right1 gov_cent1 gov_left1 gov_party      elect vturn womenpar
+1 1960 Australia        100         0         0         1             95.5        0
+2 1961 Australia        100         0         0         1 09/12/1961  95.3        0
+3 1962 Australia        100         0         0         1             95.3        0
+4 1963 Australia        100         0         0         1 30/11/1963  95.7        0
+5 1964 Australia        100         0         0         1             95.7        0
+6 1965 Australia        100         0         0         1             95.7        0
+  realgdpgr inflation debt_hist deficit ttl_labf labfopar unemp     pop pop15_64
+1        NA      3.73     40.15    0.46  4215.00       NA  1.25 10275.0   6296.5
+2     -0.64      2.29     38.62   -0.36  4286.00       NA  2.46 10508.2   6428.6
+3      5.77     -0.32     38.75   -0.79  4382.00       NA  2.32 10700.5   6571.5
+4      6.01      0.64     37.34   -0.51  4484.00       NA  1.87 10906.9   6710.9
+5      6.26      2.87     35.31   -0.08  4610.80    67.24  1.45 11121.6   6857.3
+6      4.99      3.41     53.99   -0.73  4745.95    67.66  1.36 11340.9   7014.6
+  pop65 elderly
+1 874.9    8.51
+2 894.6    8.51
+3 913.6    8.54
+4 933.0    8.55
+5 948.1    8.52
+6 966.3    8.52
+
+require(rdrop2)
+drop_auth()  # opens a browser dialog box to ask for authorization...
+drop_dir()  # lists the contents of your dropbox folder
+f <- "CPDS-1960-2014-reduced.csv"  # name of the file to read from
+f <- drop_search(f)  # searches your dropbox directory for file or directory names; this can be slow
+f <- f$path  # $path is the location of the results returned above
+d <- drop_read_csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+```
+
