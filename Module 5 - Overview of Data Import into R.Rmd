@@ -7,10 +7,10 @@ output: html_document
 #1 file.choose() function allows you to specify a file for R
 
 #2 where f<-"specified file" 
-  >read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE) allows you   to read a data file as a table
-    >header = whether a file contains names of variables as first line
-    >sep = the character used to separate values
-    >S.A.F = whther vectors are converted to factors
+  *read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE) allows you   to read a data file as a table
+    +header = whether a file contains names of variables as first line
+    +sep = the character used to separate values
+    +S.A.F = whther vectors are converted to factors
 >  
 >#3 Where d <- read.table function
   >head(d) function lists the first 6 lines of data
