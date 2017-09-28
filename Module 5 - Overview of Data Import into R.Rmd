@@ -28,7 +28,7 @@ output: html_document
   >use curl package [library(curl)]
     >f <- curl("url of data")
     >d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE) for csv
-    >d <- read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE) for     txt or tsv
+    >d <- read.table(f, header = TRUE, sep = "\t", stringsAsFactors = FALSE) fortxt or tsv
   >use readr package [library(readr)]
     >f <"url of data"
     >d <- read_csv(f, col_names = TRUE) for csv
@@ -38,21 +38,21 @@ output: html_document
     >drop_auth() to open a browser dialog box to ask for authorization...
     >drop_dir()  lists the contents of your dropbox folder
     >f <- "CPDS-1960-2014-reduced.csv"  name of the file to read from
-    >f <- drop_search(f)  searches your dropbox directory for file or directory      names
+    >f <- drop_search(f)  searches your dropbox directory for file or directorynames
     >f <- f$path  # $path is the location of the results returned above
     >d <- drop_read_csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
   >Download file from dropbox
     >filename <- "CPDS-1960-2014-reduced.csv"  # name of file to download
-    >f <- drop_search(filename)  # searches your dropbox directory for that file     or directory name
+    >f <- drop_search(filename)  # searches your dropbox directory for that fileor directory name
     >f <- f$path  # $path is the location of the results returned above
-    drop_get(f, local_file = paste0("~/Desktop/", filename), overwrite = TRUE,       progress = TRUE)# this will save the file to the desktop
+    drop_get(f, local_file = paste0("~/Desktop/", filename), overwrite = TRUE,progress = TRUE)# this will save the file to the              desktop
   >Download file from Excel
     >filename <- "CPDS-1960-2014-reduced.xlsx"
-    >f <- drop_search(filename)  # searches your dropbox directory for file or       directory names
+    >f <- drop_search(filename)  # searches your dropbox directory for file or directory names
     >f <- f$path  # $path is the location of the results returned above
-    >drop_get(f, local_file = paste0("~/Desktop/", filename), overwrite = TRUE,      >progress = TRUE)
+    >drop_get(f, local_file = paste0("~/Desktop/", filename), overwrite = TRUE, progress = TRUE)
   >Download file from Google Sheets 
-    >gs_title("CPDS-1960-2014-reduced")  #identifies the sheet you wish to           download
+    >gs_title("CPDS-1960-2014-reduced")  #identifies the sheet you wish to  download
     >gs_download("CPDS-1960-2014-reduced", to = "CPDS-1960-2014-reduced.xlsx")
     ># in this case, should save to your working directory
   
