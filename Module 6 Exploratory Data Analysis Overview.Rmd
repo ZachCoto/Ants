@@ -1,0 +1,318 @@
+---
+title: "Module 6 Exploratory Data Analysis"
+author: "Zach C"
+date: "September 27, 2017"
+output: html_document
+---
+1#Basic Functions for exploring a dataframe
+
+>names() = displays all variable titles
+
+>summary() = displays summary data for all variables
+
+>d$"variable title"<-d$"definition of variable" = creates a new variable defined
+ex. to create a new population density variable, would write d$density <- d$population/d$area, with "population" and "area" already defined previously in the table
+
+>d <- d[order("variable")] = define d as a list of the given variable ordered from highest to lowest
+
+>d[1:10,c("density")] = lists the 10 densist in the list in order from high to low (but this will not automatically label the countries by name)
+
+>new <- d[grep("^[A-F]", d$"country"variable of interest""), ] = extract values from all of a given variable (e.g. country) starting with A-F to variable "new"
+ex. new <- d[grep("^[A-F]", d$country), ]
+
+
+#2 Making various figures
+> par(mfrow = c(#rows,#columns )) = defines number of rows and columns to display a group of plots
+
+>Examples of the box plot function = boxplot(d$population), boxplot(log(d$population))
+
+
+ex. Making a boxplot of body mass organized by family
+
+boxplot(log(Body_mass_female_mean) ~ Family, d)
+
+library(ggplot2)
+
+p <- ggplot(data = d, aes(x = Family, y = log(Body_mass_female_mean)))
+
+p <- p + geom_boxplot()
+
+p <- p + theme(axis.text.x = element_text(angle = 90)) = rotates x axis labels
+
+p <- p + ylab("log(Female Body Mass)") = refines y axis label
+p
+
+>Examples of the histogram function = 
+par(mfrow = c(1, 2))  # gives us two panels
+attach(d)
+hist(log(population), freq = FALSE, col = "red", main = "Plot 1", xlab = "log(population size)", 
+    ylab = "density", ylim = c(0, 0.2))
+hist(log(area), freq = FALSE, col = "red", main = "Plot 2", xlab = "log(area)", 
+    ylab = "density", ylim = c(0, 0.2))
+
+freq = TRUE (frequencies), FALSE (Prob. densities)
+
+col = colour of the bars
+
+main, xlab, ylab = titles
+
+xlim,ylim = value ranges (only use xlim if plot=TRUE, which is the default)
+
+abline() = add a statistical line for each sample to the histogram
+
+v=mean(log(population)) = add a statistical line for the population
+>abline(v = mean(log(population), na.rm = TRUE), col = "blue")
+>lines(density(log(population), na.rm = TRUE), col = "green")
+
+#3 Making Tables
+
+can make an organized table combining table(), sort(), decreasing=TRUE
+
+sort(table(d$govt_form), decreasing = TRUE) = provides a table from the most common to least common governments
+
+
+
+#4Scatter Plots 
+par(mfrow = c(1, 2))
+>Base Function
+
+plot(x = Body_mass_female_mean, y = Brain_Size_Female_Mean)
+
+plot(x = log(Body_mass_female_mean), y = log(Brain_Size_Female_Mean))
+
+
+>GGPLOT
+p <- ggplot(data = d, aes(x = log(Body_mass_female_mean), y = log(Brain_Size_Female_Mean),color = factor(Family)))  # first, we build a plot object and color points by Family
+
+p <- p + xlab("log(Female Body Mass)") + ylab("log(Female Brain Size)")  # then we modify the axis labels
+
+p <- p + geom_point()  # then we make a scatterplot
+
+p <- p + theme(legend.position = "bottom", legend.title = element_blank())  # then we modify the legend
+
+p  # and, finally, we plot the object
+
+
+>GGPLOT gridding by variable
+p <- p + facet_wrap(~Family, ncol = 4)
+
+p <- p + theme(legend.position = "none") (position = Left, right, bottom, top, none. check help for more options)
+
+
+>Adding regression lines
+p <- p + geom_smooth(method = "lm", fullrange = TRUE) fullrange = all data
+
+
+
+#5 Aggregate Stats
+
+>library(dplyr)
+
+>s <- filter(d, Family == "Hominidae" & Mass_Dimorphism > 2)
+
+>head(s)  # filtering a data frame for certain rows...
+
+>s <- arrange(d, Family, Genus, Body_mass_male_mean)  # rearranging a data frame...
+
+>s <- select(d, Family, Genus, Body_mass_male_mean)  # selecting specific columns...
+
+>s <- rename(d, Female_Mass = Body_mass_female_mean)
+
+>head(s$Female_Mass)  # renaming columns...
+
+>s <- mutate(d, Binomial = paste(Genus, Species, sep = " "))
+
+>head(s$Binomial)  # and adding new columns...
+
+>byFamily <- group_by(d, Family) = following grouping by family, can then display a table with data organized by family using the summarise(byFamily...) function
+
+s <- summarise(byFamily, avgF = mean(Body_mass_female_mean, na.rm = TRUE), avgM = mean(Body_mass_male_mean, na.rm = TRUE))
+
+#6
+Chaining example using %>%
+
+>Add a variable, Binomial to our data frame d, which is a concatenation of the Genus and Species…
+
+>Trim the data frame to only include the variables Binomial, Family, Body_mass_female_mean, Body_mass_male_mean and Mass_Dimorphism…
+
+>Group these by Family…
+
+>And calculate the average value for female body mass, male body mass, and mass dimorphism.
+
+s <- mutate(d, Binomial = paste(Genus, Species, sep = " ")) %>% select(Binomial, 
+Family, Body_mass_female_mean, Body_mass_male_mean, Mass_Dimorphism) %>% 
+group_by(Family) %>% summarise(avgF = mean(Body_mass_female_mean, na.rm = TRUE),avgM = mean(Body_mass_male_mean, na.rm = TRUE), avgBMD = mean(Mass_Dimorphism, na.rm = TRUE))
+
+# A tibble: 14 x 4
+            Family       avgF       avgM    avgBMD
+             <chr>      <dbl>      <dbl>     <dbl>
+ 1        Atelidae  6616.2000  7894.5833 1.2305833
+ 2         Cebidae   876.3323  1012.4484 1.0700323
+ 3 Cercopithecidae  6327.8247  9542.8288 1.4851370
+ 4   Cheirogalidae   186.0286   193.4286 1.0208571
+ 5   Daubentonidae  2490.0000  2620.0000 1.0520000
+ 6       Galagidae   371.6143   395.1571 1.0490000
+ 7       Hominidae 53443.7167 98681.0167 1.8091667
+ 8     Hylobatidae  6682.1200  6925.8000 1.0311000
+ 9       Indriidae  3886.5333  3637.9000 0.9496667
+10       Lemuridae  1991.1200  2076.6200 1.0616667
+11   Lepilemuridae   813.5000   792.0000 0.9805000
+12       Lorisidae   489.8625   512.2625 1.0515000
+13     Pitheciidae  1768.5000  1955.1000 1.0919000
+14       Tarsiidae   120.0000   131.0000 1.0930000
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(curl)
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/Country-Data-2016.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+
+#1
+names(d)
+[1] "country"        "population"     "area"           "govt_form"     
+ [5] "birthrate"      "deathrate"      "life_expect"    "mammals"       
+ [9] "birds"          "reptiles"       "amphibians"     "fishes"        
+[13] "mollucs"        "other_inverts"  "plants"         "fungi_protists"
+
+summary(d)
+ country            population             area           govt_form        
+ Length:248         Min.   :3.000e+01   Min.   :       0   Length:248        
+ Class :character   1st Qu.:2.991e+05   1st Qu.:    1769   Class :character  
+ Mode  :character   Median :4.912e+06   Median :   69700   Mode  :character  
+                    Mean   :2.999e+07   Mean   :  610952                     
+                    3rd Qu.:1.803e+07   3rd Qu.:  398754                     
+                    Max.   :1.367e+09   Max.   :17098242                     
+                    NA's   :6           NA's   :1                            
+   birthrate       deathrate      life_expect       mammals           birds       
+ Min.   : 0.00   Min.   : 0.00   Min.   :49.80   Min.   :  0.00   Min.   :  0.00  
+ 1st Qu.:11.40   1st Qu.: 5.65   1st Qu.:67.40   1st Qu.:  3.00   1st Qu.:  6.00  
+ Median :16.40   Median : 7.40   Median :74.70   Median :  8.00   Median : 12.00  
+ Mean   :18.95   Mean   : 7.61   Mean   :72.19   Mean   : 13.85   Mean   : 17.82  
+ 3rd Qu.:24.35   3rd Qu.: 9.40   3rd Qu.:78.40   3rd Qu.: 15.00   3rd Qu.: 19.00  
+ Max.   :45.50   Max.   :14.90   Max.   :89.50   Max.   :188.00   Max.   :165.00  
+ NA's   :17      NA's   :17      NA's   :19      NA's   :3        NA's   :3       
+    reptiles         amphibians          fishes          mollucs      
+ Min.   :  0.000   Min.   :  0.000   Min.   :  0.00   Min.   :  0.00  
+ 1st Qu.:  2.000   1st Qu.:  0.000   1st Qu.: 11.00   1st Qu.:  0.00  
+ Median :  5.000   Median :  0.000   Median : 25.00   Median :  1.00  
+ Mean   :  8.331   Mean   :  9.849   Mean   : 32.84   Mean   :  9.62  
+ 3rd Qu.:  8.000   3rd Qu.:  4.000   3rd Qu.: 43.00   3rd Qu.:  6.00  
+ Max.   :139.000   Max.   :215.000   Max.   :249.00   Max.   :301.00  
+ NA's   :3         NA's   :3         NA's   :3        NA's   :3       
+ other_inverts        plants        fungi_protists   
+ Min.   :  0.00   Min.   :   0.00   Min.   : 0.0000  
+ 1st Qu.:  3.00   1st Qu.:   2.00   1st Qu.: 0.0000  
+ Median : 11.00   Median :  10.00   Median : 0.0000  
+ Mean   : 32.57   Mean   :  60.78   Mean   : 0.6082  
+ 3rd Qu.: 33.00   3rd Qu.:  44.00   3rd Qu.: 0.0000  
+ Max.   :340.00   Max.   :1856.00   Max.   :12.0000 
+
+
+d$density <- d$population/d$area
+d <- d[order(-d$density), ]
+d[1:10, ]
+  country population   area                              govt_form
+130                   Macau     592731   28.0 special administrative region of China
+145                  Monaco      30535    2.0                constitutional monarchy
+97  Holy See (Vatican City)        842    0.1                               monarchy
+199               Singapore    5674472  697.0                               republic
+99                Hong Kong    7141106 1108.0 special administrative region of China
+84                Gibraltar      29258    7.0             British overseas territory
+17                  Bahrain    1346613  760.0                constitutional monarchy
+135                Maldives     393253  298.0                               republic
+137                   Malta     413965  316.0                               republic
+24                  Bermuda      70196   54.0             British overseas territory
+    birthrate deathrate life_expect mammals birds reptiles amphibians fishes mollucs
+130       8.9       4.2        84.5       0     4        1          0      5       0
+145       6.7       9.2        89.5       3     0        0          0     15       0
+97         NA        NA          NA       1     0        0          0      0       0
+199       8.3       3.4        84.7      13    17        6          0     27       0
+99        9.2       7.1        82.9       3    20        5          5     13       1
+84       14.1       8.4        79.3       4     5        0          0     18       3
+17       13.7       2.7        78.7       3     6        4          0     10       0
+135      15.8       3.9        75.4       2     0        3          0     24       0
+137      10.2       9.1        80.2       2     5        1          0     22       3
+24       11.3       8.2        81.2       4     1        4          0     26       0
+    other_inverts plants fungi_protists   density
+130             1      0              0 21168.964
+145             3      0              0 15267.500
+97              0      0              0  8420.000
+199           173     58              0  8141.280
+99              7      9              0  6445.042
+84              2      0              0  4179.714
+17             13      0              0  1771.859
+135            46      0              0  1319.641
+137             2      4              0  1310.016
+24             28      8              0  1299.926
+
+d <- d[order(-d$density), ]
+d[1:10,c("density")]
+[1] 21168.964 15267.500  8420.000  8141.280  6445.042  4179.714  1771.859
+ [8]  1319.641  1310.016  1299.926
+
+
+new <- d[grep("^[A-F]", d$country),]
+summary(new)
+ country            population             area         
+ Length:78          Min.   :5.960e+02   Min.   :      14  
+ Class :character   1st Qu.:2.991e+05   1st Qu.:    4066  
+ Mode  :character   Median :4.785e+06   Median :   51148  
+                    Mean   :3.507e+07   Mean   :  918248  
+                    3rd Qu.:1.469e+07   3rd Qu.:  466498  
+                    Max.   :1.367e+09   Max.   :14000000  
+                    NA's   :4                             
+  govt_form           birthrate       deathrate       life_expect   
+ Length:78          Min.   : 0.00   Min.   : 0.000   Min.   :49.80  
+ Class :character   1st Qu.:11.65   1st Qu.: 5.850   1st Qu.:68.75  
+ Mode  :character   Median :15.90   Median : 7.700   Median :75.50  
+                    Mean   :18.77   Mean   : 7.861   Mean   :72.25  
+                    3rd Qu.:23.30   3rd Qu.: 9.500   3rd Qu.:78.40  
+                    Max.   :42.00   Max.   :14.400   Max.   :82.70  
+                    NA's   :7       NA's   :7        NA's   :7      
+    mammals         birds           reptiles        amphibians    
+ Min.   : 0.0   Min.   :  0.00   Min.   : 0.000   Min.   :  0.00  
+ 1st Qu.: 3.0   1st Qu.:  6.00   1st Qu.: 2.000   1st Qu.:  0.00  
+ Median : 7.0   Median : 11.00   Median : 5.000   Median :  0.00  
+ Mean   :13.4   Mean   : 18.62   Mean   : 7.397   Mean   : 11.86  
+ 3rd Qu.:14.0   3rd Qu.: 18.00   3rd Qu.: 8.000   3rd Qu.:  3.00  
+ Max.   :81.0   Max.   :165.00   Max.   :43.000   Max.   :215.00  
+                                                                  
+     fishes          mollucs       other_inverts        plants       
+ Min.   :  0.00   Min.   :  0.00   Min.   :  0.00   Min.   :   0.00  
+ 1st Qu.: 10.00   1st Qu.:  0.00   1st Qu.:  4.00   1st Qu.:   2.25  
+ Median : 24.50   Median :  1.00   Median : 11.00   Median :  10.00  
+ Mean   : 29.54   Mean   : 10.17   Mean   : 23.63   Mean   :  70.64  
+ 3rd Qu.: 41.50   3rd Qu.:  5.00   3rd Qu.: 25.25   3rd Qu.:  41.75  
+ Max.   :133.00   Max.   :174.00   Max.   :340.00   Max.   :1856.00  
+                                                                     
+ fungi_protists      density         
+ Min.   :0.0000   Min.   :   0.2761  
+ 1st Qu.:0.0000   1st Qu.:  24.5932  
+ Median :0.0000   Median :  75.0297  
+ Mean   :0.6026   Mean   : 162.4785  
+ 3rd Qu.:0.0000   3rd Qu.: 140.7140  
+ Max.   :8.0000   Max.   :1771.8592  
+                  NA's   :4      
+                    
+                    
+#2
+par(mfrow = c(2, 3))
+boxplot(d$population)
+boxplot(log(d$population))
+boxplot(d$area)
+boxplot(log(d$area))
+barplot(d$population)
+barplot(d$area)
+
+par(mfrow = c(1, 2))  
+attach(d)
+hist(log(population), freq = FALSE, col = "red", main = "Plot 1", xlab = "log(population size)", 
+    ylab = "density", ylim = c(0, 0.2))
+hist(log(area), freq = TRUE, col = "red", main = "Plot 2", xlab = "log(area)", 
+    ylab = "density", ylim = c(0, 0.2))
+```
+
+library(curl)
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/Country-Data-2016.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+head(d)
