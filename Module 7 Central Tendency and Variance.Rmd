@@ -9,33 +9,37 @@ output: html_document
     prod(x)^(1/length(x))}  
 >gm2 <- function(x) {
     exp(mean(log(x)))}  
-       
+ 
+ 
 #2 Variance
+
 #sum of squares
 >ss1 <- function(x) {
     sum((x - mean(x))^2)}
+    
 >ss2 <- function(x) {
 sum(x^2) - length(x) * mean(x)^2}
+
 >ss3 <- function(x) {
     sum(x^2) - (sum(x))^2/length(x)}
-    
+  
 #population variance = SOS/N
 
-pop_v <- function(x) {
+>pop_v <- function(x) {
     sum((x - mean(x))^2)/(length(x))}
     
 #sample variance= SOS/n-1
 
-sample_v <- function(x) {
+>sample_v <- function(x) {
     sum((x - mean(x))^2)/(length(x) - 1)}
     
 #Standard deviation = square root of variance
 
-pop_sd <- function(x) {
+>pop_sd <- function(x) {
     sqrt(pop_v(x))
 }
 
-sample_sd <- function(x) {
+>sample_sd <- function(x) {
     sqrt(sample_v(x))
 }
   
