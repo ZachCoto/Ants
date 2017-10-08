@@ -143,6 +143,8 @@ s <- mutate(d, Binomial = paste(Genus, Species, sep = " ")) %>% select(Binomial,
 Family, Body_mass_female_mean, Body_mass_male_mean, Mass_Dimorphism) %>% 
 group_by(Family) %>% summarise(avgF = mean(Body_mass_female_mean, na.rm = TRUE),avgM = mean(Body_mass_male_mean, na.rm = TRUE), avgBMD = mean(Mass_Dimorphism, na.rm = TRUE))
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 # A tibble: 14 x 4
             Family       avgF       avgM    avgBMD
              <chr>      <dbl>      <dbl>     <dbl>
@@ -161,8 +163,6 @@ group_by(Family) %>% summarise(avgF = mean(Body_mass_female_mean, na.rm = TRUE),
 13     Pitheciidae  1768.5000  1955.1000 1.0919000
 14       Tarsiidae   120.0000   131.0000 1.0930000
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library(curl)
 f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/Country-Data-2016.csv")
 d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
