@@ -9,19 +9,14 @@ output: html_document
     prod(x)^(1/length(x))}  
 >gm2 <- function(x) {
     exp(mean(log(x)))}  
-    
-    
+       
 #2 Variance
-
 #sum of squares
-
-ss1 <- function(x) {
+>ss1 <- function(x) {
     sum((x - mean(x))^2)}
-    
-ss2 <- function(x) {
+>ss2 <- function(x) {
 sum(x^2) - length(x) * mean(x)^2}
-
-ss3 <- function(x) {
+>ss3 <- function(x) {
     sum(x^2) - (sum(x))^2/length(x)}
     
 #population variance = SOS/N
