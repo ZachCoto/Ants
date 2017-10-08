@@ -118,7 +118,7 @@ normalCI(x, 0.95)  # call the function
 
 ## [1]  5.736829 10.263171 , should be same for all 3 exs.
 
-#Bootstrapping:An alternative way to calculate a confidence interval is by simulation, which does not presume the underlying distribution from which the random variable is drawn. Here, we use the sample() function to sample, with replacement, 15 numbers from our vector x a total of 10000 times.
+#Bootstrapping:An alternative way to calculate a confidence interval is by simulation, which does not presume the underlying distribution from which the random variable is drawn. Here we use the sample() function to sample, with replacement, 15 numbers from our vector x a total of 10000 times.
 
 set <- NULL  # sets up a dummy variable to hold our 10000 simulations
 n <- 15
