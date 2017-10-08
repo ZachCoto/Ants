@@ -45,42 +45,42 @@ sum(x^2) - length(x) * mean(x)^2}
   
 #Standard Error Mean = ratio of variance to sample size 
 
-SE1 <- function(x) {
+>SE1 <- function(x) {
     sqrt(sample_v(x)/length(x))
 }
 
-SE2 <- function(x) {
+>SE2 <- function(x) {
     sqrt(var(x)/length(x))
 }
 
-library(sciplot)
+>library(sciplot)
 se(x)
 
 
 #3 Confidence Intervals:A confidence interval shows the likely range of values into which an estimate would fall if the sampling exercise were to be repeated.The 95% confidence interval, then, describes the range of values into which a statistic, calculated based on a repeated sample, would be expected to fall 95% of the time. Based on the given data (with a particular mean, variance, and sample size) we are 95% confident that the true mean of the population is between these bounds.
 
-#calculate a 95% confidence interval around our estimate of the mean for a particular set of observations, assuming those data reflect a random variable that is normally distributed and that our observations are independent.
+>calculate a 95% confidence interval around our estimate of the mean for a particular set of observations, assuming those data reflect a random variable that is normally distributed and that our observations are independent.
 
 #Quantile Norm
 
-#qnorm(0.025, mean=0, sd=1) tells us the number of standard deviations away from the mean that correspond with up to 2.5% of of the normal distribution with mean=0 and sd=1. qnorm(0.975, mean=0, sd=1) tells us the number of standard deviations up to which 97.5% of observations should fall.
+>qnorm(0.025, mean=0, sd=1) tells us the number of standard deviations away from the mean that correspond with up to 2.5% of of the normal distribution with mean=0 and sd=1. qnorm(0.975, mean=0, sd=1) tells us the number of standard deviations up to which 97.5% of observations should fall.
 
 #Normal Distribution
 
-#rnorm() function to sample 10000 numbers from a normal distribution with mean = 0 and standard deviation = 1
+>rnorm() function to sample 10000 numbers from a normal distribution with mean = 0 and standard deviation = 1
 
-set.seed(1)
+>set.seed(1)
 x <- rnorm(10000, 0, 1)
 hist(x)
 
 #plot the density and probability distributions for a normal distribution. In these plots, cex= sets the size of the points being plotted
 
-x <- seq(from = -4, to = 4, by = 0.01)
+>x <- seq(from = -4, to = 4, by = 0.01)
 plot(x, dnorm(x), cex = 0.4)
 
-plot(x, pnorm(x), cex = 0.4)
+>plot(x, pnorm(x), cex = 0.4)
 
-x <- seq(from = 0, to = 1, by = 0.01)
+>x <- seq(from = 0, to = 1, by = 0.01)
 plot(qnorm(x), x, cex = 0.4)
 
 #Calculate Confidence intervals assuming a vector x
@@ -113,7 +113,7 @@ normalCI = function(x, CIlevel = 0.95) {
 }
 normalCI(x, 0.95)  # call the function
 
-## [1]  5.736829 10.263171 , should be same for all 3 exs.
+>[1]  5.736829 10.263171 , should be same for all 3 exs.
 
 #Bootstrapping:An alternative way to calculate a confidence interval is by simulation, which does not presume the underlying distribution from which the random variable is drawn. Here we use the sample() function to sample, with replacement, 15 numbers from our vector x a total of 10000 times.
 
@@ -124,13 +124,13 @@ for (i in 1:10000) {
 
 quantile(set)
 
-##        0%       25%       50%       75%      100% 
-##  4.200000  7.266667  8.000000  8.733333 12.133333
+#        0%       25%       50%       75%      100% 
+#  4.200000  7.266667  8.000000  8.733333 12.133333
 
 quantile(set, c(0.025, 0.975))
 
-##      2.5%     97.5% 
-##  5.866667 10.133333
+#      2.5%     97.5% 
+#  5.866667 10.133333
 
 
 ```{r setup, include=FALSE}
