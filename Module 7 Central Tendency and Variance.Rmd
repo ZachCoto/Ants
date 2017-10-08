@@ -5,10 +5,8 @@ date: "September 28, 2017"
 output: html_document
 ---
 #1 Mean
-
 >gm1 <- function(x) {
-    prod(x)^(1/length(x))}
-    
+    prod(x)^(1/length(x))}  
 >gm2 <- function(x) {
     exp(mean(log(x)))}  
     
