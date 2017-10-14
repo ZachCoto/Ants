@@ -1,51 +1,76 @@
 ---
-title: "Module 8 Probability and Distributions"
+title: "Module 8 Probabilities and Distributions"
 author: "Zach C"
-date: "October 8, 2017"
+date: "October 14, 2017"
 output: html_document
 ---
+>Random Variable = variable whose outcomes are assumed to arise by chance or according to some random or stochastic mechanism. 
 
+Discrete Random Variables are random variables that can assume only a countable number of discrete possibilities
+
+Continuous Random Variables are random variables that can assume any real number value within a given range 
+
+>A probability function is a mathematical function that describes the chance associated with a random variable having a particular outcome or falling within a given range of outcome values
+
+Probability Mass Functions (PMFs) are associated with discrete random variables. These functions describe the probability that a random variable takes a particular discrete value.
+
+>Rolling a die
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#To Roll a Die with a slider option 
 
+#1 How to roll a die
 library(manipulate)
 outcomes <- c(1, 2, 3, 4, 5, 6)
-manipulate(hist(sample(outcomes, n, replace = TRUE), breaks = c(0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5), probability = TRUE, main = paste("Histogram of Outcomes of ", n, " Die Rolls", sep = ""), xlab = "roll", ylab = "probability"), n = slider(0, 10000, initial = 100, step = 100))
+manipulate(hist(sample(outcomes, n, replace = TRUE), breaks = c(0.5, 1.5, 2.5, 
+    3.5, 4.5, 5.5, 6.5), probability = TRUE, main = paste("Histogram of Outcomes of ", 
+    n, " Die Rolls", sep = ""), xlab = "roll", ylab = "probability"), n = slider(0, 
+    10000, initial = 100, step = 100))
 
-#Write a function to simulate rolling a die where you pass the number of rolls as an argument. Then, use your function to simulate rolling two dice 1000 times and take the sum of the rolls. Plot a histogram of those results.
 
-nrolls<-1000 #the independent variable x for the following function (how many times you roll for the function "roll")
+#2 Roll a 2 dice 1000 times
+nrolls <- 1000
 roll <- function(x) {
     sample(1:6, x, replace = TRUE)
-} #includes the 6 sides, replacing after each roll
+}
 two_dice <- roll(nrolls) + roll(nrolls)
-hist(two_dice, breaks = c(1.5:12.5), probability = TRUE, main = "Rolling Two Dice", xlab = "sum of rolls", ylab = "probability")
+hist(two_dice, breaks = c(1.5:12.5), probability = TRUE, main = "Rolling Two Dice", 
+    xlab = "sum of rolls", ylab = "probability")
+
+
 ```
 
-# Probability Mass Function
-
->mathematical function that describes the chance associated with a discrete random variable having a particular outcome or falling within a given range of outcome values (i.e. flipping a coin).
-
+>Intro to Random Variables
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#1 Flip Coin
+
+outcomes <- c("heads", "tails")
+prob <- c(1/2, 1/2)
+barplot(prob, ylim = c(0, 0.6), names.arg = outcomes, space = 0.1, xlab = "outcome", 
+    ylab = "Pr(X = outcome)", main = "Probability Mass Function")
+
+cumprob <- cumsum(prob)
+barplot(cumprob, names.arg = outcomes, space = 0.1, xlab = "outcome", ylab = "Cumulative Pr(X)", 
+    main = "Cumulative Probability")
+
+#2 ROll a die
 outcomes <- c(1, 2, 3, 4, 5, 6)
 prob <- c(1/6, 1/6, 1/6, 1/6, 1/6, 1/6)
 barplot(prob, ylim = c(0, 0.5), names.arg = outcomes, space = 0.1, xlab = "outcome", 
     ylab = "Pr(X = outcome)", main = "Probability Mass Function")
+
+cumprob <- cumsum(prob)
+barplot(cumprob, names.arg = outcomes, space = 0.1, xlab = "outcome", ylab = "Cumulative Pr(X)", 
+    main = "Cumulative Probability")
 ```
 
-# Probability Density Function 
+>Probability Density Functions (PDFs) are associated with continuous random variables. These functions describe the probability that a random variable falls within a given range of outcome values. The probability associated with that range equals the area under the density function for that range.
 
->Describes the probability that a continuous random variable falls within a given range of outcome values. The probability associated with that range equals the area under the density function for that range.
+F(x) ??? 0 for all ?????? ??? x ??? +??? and the total area under the function f(x) = 1
 
->For a PDF to be valid, f(x) ≥ 0 for all −∞ ≤ x ≤ +∞. That is, the function f(x)is non-negative everywhere.∫+∞−∞f(x) dx = 1. That is, the total area under the function f(x) = 1
+>Beta distribution = a family of continuous probability distributions defined over the interval [0, 1] and parametrized by two positive shape parameters, denoted by ?? and ??
 
->PDF Beta Distribution: a family of continuous probability distributions defined over the interval [0, 1] and parametrized by two positive shape parameters, denoted by α and β, that appear as exponents of the random variable x and control the shape of the distribution.
-
->Beta distribution Function defined as x^{α-1}(1-x)^{β-1}
-
->If we set K = 2, α = 2, and β = 1 and restrict the domain of x to [0, 1], it gives us a triangular function that we can graph as follows:
+f(x) = K[x^(?????1)][(1???x)^?????1]
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
@@ -62,61 +87,82 @@ x <- c(lower_x, x, upper_x)  # paste xs together
 fx <- c(lower_fx, fx, upper_fx)  # paste fxs together
 d <- as.data.frame(cbind(x, fx))
 p <- ggplot(data = d, aes(x = x, y = fx)) + xlab("x") + ylab("f(x)") + geom_line()
-p
+
 ```
->Cumulative Distribution Function the probability of observing a random variable X taking the value of x or less, i.e., F(x) = Pr (X ≤ x). x does not need to be continuous For a continuous variable, the PDF is simply the first derivative of the CDF, i.e., $f(x) = d F(x)
+
+Cumulative distribution function, or CDF, of a random variable is defined as the probability of observing a random variable X taking the value of x or less
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 x <- seq(from = 0, to = 1, by = 0.005)
 prob <- 0.5 * x * K * x^(a - 1) * (1 - x)^(b - 1)
 barplot(prob, names.arg = x, space = 0, main = "Cumulative Probability", xlab = "x", 
-    ylab = "Pr(X ≤ x)")
+    ylab = "Pr(X ??? x)")
 
-#The built in R function for the Beta Distribution, pbeta(), can give us the cumulative probability directly, if we specify the values of α = 2 and β = 1.In general, we find the cumulative probability for a continuous random variable by calculating the area under the probability density function of interest from −∞ to x. This is what is is being returned from pbeta(). The other related Beta Distribution functions, e.g., rbeta(), dbeta(), and qbeta(), are also useful. rbeta() draws random observations from a specfied beta distribution. dbeta() gives the point estimate of the beta density function at the value of the argument x, and qbeta() is essentially the converse of pbeta(), i.e., it tells you the value of x that is associated with a particular cumulative probability, or quantile, of the cumulative distribution function. Other PMFs and PDFs have comparable r, d, p, and q functions.
+#The built in R function for the Beta Distribution, pbeta(), can give us the cumulative probability directly, if we specify the values of ?? = 2 and ??= 1.The other related Beta Distribution functions, e.g., rbeta(), dbeta(), and qbeta(), are also useful. rbeta() draws random observations from a specfied beta distribution. dbeta() gives the point estimate of the beta density function at the value of the argument x, and qbeta() is essentially the converse of pbeta(), i.e., it tells you the value of x that is associated with a particular cumulative probability, or quantile, of the cumulative distribution function.
 
-pbeta(0.75, 2, 1)
-[1] 0.5625
-qbeta(0.49, 2, 1)
-[1] 0.7
+pbeta(0.75, 2, 1)  # cumulative probability for x ??? 0.75
+
+pbeta(0.7, 2, 1)  # yields .49
+
+qbeta(0.49, 2, 1)  # yield 0.7
 ```
-# Probability Distributions
-
->Bernoulli Distribution:  probability distribution of a binary random variable, i.e., a variable that has only two possible outcomes
-
->the probability mass function is:f(x)= (p^x)[(1−p)^(1−x)] where x= {0 or 1}
-
->For this distribution, μ_X = p and σ2_X = p(1−p)
 
 
->Binomial Distribution: a special case of the Binomial Distribution. The binomial distribution is typically used to model the probability of a number of “successes” k out of a set of “trials” n, i.e., for counts of a particular outcome.
+>Expected Mean and Variance of Random Variables
 
->the probability mass function is:f(x)= (n choose k)(p^k)(1-p^(n-k)), with n choose k = n!/(k!(n-k)!) = prob. of k successes out of n trials.Where n = 1, this simplifies to the Bernoulli distribution.
+??_X = Expectation for X = ??? (x_i)[Pr(X=x_i)] for all x from x_i to x_k
 
->What is the chance of getting a “1” on each of six consecutive rolls of a die? What about of getting exactly three “1”s? What is the expected number of “1”s to occur in six consecutive rolls?
-
+(??^2)_X = Variance of X = ??? (x_i?????_X)^2[Pr(X=x_i) for all x from x_i to x_k
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#X = (1 * 1/6) + (2 * 1/6) + . + (6 * 1/6) = 3.5
+m <- sum(seq(1:6) * 1/6)
+#[1] 3.5
+
+#the expected variance
+#[(1 - 3.5)^2 * (1/6)] + [(2 - 3.5)^2 * (1/6)] + . + [(6 - 3.5)^2 * (1/6)] =
+var <- sum((seq(1:6) - mean(seq(1:6)))^2 * (1/6))
+#[1] 2.916667
+```
+
+>The Bernoulli Distribution is the probability distribution of a binary random variable, i.e., a variable that has only two possible outcomes.
+
+PMF = f(x)= (p^x)[(1???p)^(1???x)] where x= {0 or 1}
+
+For this distribution, ??X= p and (??^2)_X = p(1???p)
+
+>The Bernoulli distribution is a special case of the Binomial Distribution. The binomial distribution is typically used to model the probability of a number of "successes" k out of a set of "trials" n, i.e., for counts of a particular outcome.
+
+PMF=f(x)= (n-choose-k, nck)(p^k)[(1-p)^n-k]
+
+(nck)=n!/[k!(n-k)!]
+
+For this, ??X = np and (??^2_X) = np(1-p).
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#1 What is the chance of getting a "1" on each of six or three  consecutive rolls of a die? 
 n <- 6  # number of trials
 k <- 6  # number of successes
 p <- 1/6
 prob <- (factorial(n)/(factorial(k) * factorial(n - k))) * (p^k) * (1 - p)^(n - 
     k)
 prob
-[1] 2.143347e-05
+
+#[1] 2.143347e-05
 
 k <- 3  # number of successes
 prob <- (factorial(n)/(factorial(k) * factorial(n - k))) * (p^k) * (1 - p)^(n - 
     k)
 prob
-[1] 0.05358368
 
+#[1] 0.05358368
+
+#R function 
 dbinom(x = k, size = n, prob = p)
-[1] 0.05358368
 
-For returning a value for a CDF, use pbinom()
+#[1] 0.05358368
 
-the chances of observing exactly 0, 1, 2, 3, … 6 rolls of “1” on 6 rolls of a die are…
-
+#2 What is the expected number of "1"s to occur in six consecutive rolls?
 probset <- dbinom(x = 0:6, size = 6, prob = 1/6)  # x is number of successes, size is number of trials
 barplot(probset, names.arg = 0:6, space = 0, xlab = "outcome", ylab = "Pr(X = outcome)", 
     main = "Probability Mass Function")
@@ -125,114 +171,122 @@ cumprob = cumsum(probset)
 barplot(cumprob, names.arg = 0:6, space = 0.1, xlab = "outcome", ylab = "Cumulative Pr(X)", 
     main = "Cumulative Probability")
 
-The chance of observing exactly 3 rolls of “1” is…
-dbinom(x = 3, size = 6, prob = 1/6)
+#3 The probability of observing more than 3 rolls of "1" is given as.
 
-And the chance of observing up to and including 3 rolls of “1” is…
-pbinom(q = 3, size = 6, prob = 1/6)  # note the name of the argument is q not x
+1 - pnbinom(q = 3, size = 6, prob = 1/6)
+# [1] 0.9988642
+
+#4 The probability of observing 3 or more rolls of "1" is.
+
+1 - pbinom(q = 2, size = 6, prob = 1/6)  # note here that the q argument is '2'
+# [1] 0.06228567
 ```
-Poisson Distribution
 
-> often used to model open ended counts of independently occuring events, for example the number of cars that pass a traffic intersection over a given interval of time or the number of times a monkey scratches itself during a given observation interval.
+>The Poisson Distribution is often used to model open ended counts of independently occuring events
 
->The probability mass function for the Poisson distribution is described by a single parameter, λ, where λ can be interpreted as the mean number of occurrences of the event in the given interval.
-
-> f(x)= [(λ^x)(exp(-λ))]/x! where the mean and variance = λ
+PMF = f(x) = {[(??^x)exp(-??)]}/(x!) where mean expectation and variance = ??
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#example of R script for Poisson Dist (PDF and CDF)
-
 x <- 0:10
-l <- 3.5
+l = 3.5
 probset <- dpois(x = x, lambda = l)
 barplot(probset, names.arg = x, space = 0, xlab = "x", ylab = "Pr(X = x)", main = "Probability Mass Function")
 
 x <- 0:10
 l <- 3.5
 barplot(ppois(q = x, lambda = l), ylim = 0:1, space = 0, names.arg = x, xlab = "x", 
-    ylab = "Pr(X ≤ x)", main = "Cumulative Probability")
+    ylab = "Pr(X ??? x)", main = "Cumulative Probability")
 ```
 
-Uniform Distribution 
+>Uniform Distribution is the simplest probability density function describing a continuous random variable. The probability is uniform and does not fluctuate across the range of x values in a given interval.
 
->the simplest probability density function describing a continuous random variable. The probability is uniform and does not fluctuate across the range of x values in a given interval.
+f(x)= 1/(b-a) where a ??? x ??? b and 0 for x < a and x > b
 
->f(x) = 1/(b-a) where a ≤ x ≤ b and 0 for x < a and x > b
-
->u_x=(a+b)/s
-
-> σ^2_X=((b-a)^2)/12
-
+mean = (a+b)/2, variance = [(b-a)^2]/12
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#example of R script for Uniform Dist (PDF and CDF)
-
 a <- 4
 b <- 8
 x <- seq(from = a - (b - a), to = b + (b - a), by = 0.01)
 fx <- dunif(x, min = a, max = b)  # dunif() evaluates the density at each x
 plot(x, fx, type = "l", xlab = "x", ylab = "f(x)", main = "Probability Density Function")
 
-plot(x, punif(q = x, min = a, max = b), type = "l", xlab = "x", ylab = "Pr(X ≤ x)", main = "Cumulative Probability")
+plot(x, punif(q = x, min = a, max = b), type = "l", xlab = "x", ylab = "Pr(X ??? x)", 
+    main = "Cumulative Probability")  # punif() is the cumulative probability density up to a given x
 ```
 
-
-Normal/Gaussian Distribution
+>Gaussian Distribution 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 mu <- 4
 sigma <- 1.5
-curve(dnorm(x, mu, sigma), mu - 4 * sigma, mu + 4 * sigma, main = "Normal Curve", xlab = "x", ylab = "f(x)")
+curve(dnorm(x, mu, sigma), mu - 4 * sigma, mu + 4 * sigma, main = "Normal Curve", 
+    xlab = "x", ylab = "f(x)")
 
-#use pnorm() to calculate the probability of an observation drawn from the population falling within a particular interval.
+#You can also use pnorm() to calculate the probability of an observation drawn from the population falling within a particular interval. For example, for a normally distributed population variable with ?? = 6 and ??= 2, the probability of a random observation falling between 7 and 8 is:
+
 p <- pnorm(8, mean = 6, sd = 2) - pnorm(7, mean = 6, sd = 2)
+# [1] 0.1498823
 
-#use pnorm() to calculate the probability of an observation falling, for example within 2 standard deviations of the mean of a particular normal distribution.
-mu <- 0
-sigma <- 1
-p <- pnorm(mu + 2 * sigma, mean = mu, sd = sigma) - pnorm(mu - 2 * sigma, mean = mu, 
-    sd = sigma)
-#Create a vector, v, containing n random numbers selected from a normal distribution with mean μ and standard deviation σ. Use 1000 for n, 3.5 for μ, and 4 for σ
+#Create a vector, v, containing n random numbers selected from a normal distribution with mean ?? and standard deviation ??.
 n <- 1000
 mu <- 3.5
 sigma <- 4
 v <- rnorm(n, mu, sigma)
-mean(v)
-
+hist(v, breaks = seq(from = -15, to = 20, by = 0.5), probability = TRUE)
 ```
 
->A quantile-quantile or “Q-Q” plot can be used to look at whether a set of data seem to follow a normal distribution. A Q–Q plot is a graphical method for generally comparing two probability distributions. To examine a set of data for normality graphically, you plot the quantiles for your actual data (as the y values) versus the theoretical quantiles (as the x values) pulled from a normal distribution. If the two distributions being compared are similar, the points in the plot will approximately lie on the line y = x.
-
->call the two R functions qqnorm() and qqline() using the vector of data you want to examine as an argument.
+>A quantile-quantile or "Q-Q" plot can be used to look at whether a set of data seem to follow a normal distribution. A Q-Q plot is a graphical method for generally comparing two probability distributions. To examine a set of data for normality graphically, you plot the quantiles for your actual data (as the y values) versus the theoretical quantiles (as the x values) pulled from a normal distribution. If the two distributions being compared are similar, the points in the plot will approximately lie on the line y = x.
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 qqnorm(v, main = "Normal QQ plot random normal variables")
 qqline(v, col = "gray")
 ```
 
-Standard Normal Distribution
-
->Any normal distribution with mean μ and standard deviation σ can be converted into what is called the standard normal distribution, where the mean is zero and the standard deviation is 1. This is done by subtracting the mean from all observations and dividing these differences by the standard deviation. The resultant values are referred to a Z scores, and they reflect the number of standard deviations an observation is from the mean.
-
+>Standard Normal Distribution = Any normal distribution with mean ?? and standard deviation ?? can be converted into what is called the standard normal distribution, where the mean is zero and the standard deviation is 1.
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 x <- rnorm(10000, mean = 5, sd = 8)  # simulate from a normal distribution with mean 5 and SD 8
 hist(x)
-
-#mean(x) really close to 5 [1] 4.968016
-#sd(x)  [1] 7.994792
+mean(x)  # really close to 5
+# [1] 4.968016
+sd(x)  # really close to 8
+# [1] 7.994792
 
 z <- (x - mean(x))/sd(x)  # standardized!
 hist(z)
-
-#mean(x) really close to 0 [1] -2.504751e-18
-#sd(x)  [1] 1
-
-
-
+mean(z)  # really close to zero
+# [1] -2.504751e-18
+sd(z)  
+# [1] 1
 
 
+#Example of sampling from a population: a population of 1 million zombies whose age at zombification is characterized by a normal distribution with a mean of 25 years and a standard deviation of 5 years
+
+set.seed(1)
+x <- rnorm(1e+06, 25, 5)
+hist(x, probability = TRUE)
+
+#now sample the zombie population by trapping sets of zombies and determining the mean age in each set. We sample without replacement from the original population for each set. Let's do that 100 times with samples of size 5 and store these in a list.
+
+k <- 1000  # number of samples
+n <- 5  # size of each sample
+s <- NULL  # dummy variable to hold each sample
+for (i in 1:k) {
+    s[[i]] <- sample(x, size = n, replace = FALSE)
+}
+
+m <- NULL
+for (i in 1:k) {
+    m[i] <- mean(s[[i]])
+}
+mean(m)  
+# [1] 24.95602
+
+mu <- mean(x)
+mu
+# [1] 25.00023
 
 
 
