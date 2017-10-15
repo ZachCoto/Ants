@@ -4,7 +4,7 @@ author: "Zach C"
 date: "October 14, 2017"
 output: html_document
 ---
-##Determining a confidence interval around a Normal distribution 
+## Determining a confidence interval around a Normal distribution 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #Suppose a polling group in the Massachusetts is interested in the proportion of voting-age citizens in their state that already know they will vote for Elizabeth Warren in the upcoming November 6, 2018 midterm elections (don’t forget to vote!). The group obtains a yes or no answer from 1000 suitable randomly selected individuals. Of these individuals, 856 say they know they’ll vote for Senator Warren. How would we characterize the mean and variability associated with this proportion?
