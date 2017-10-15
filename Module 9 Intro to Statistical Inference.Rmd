@@ -1,0 +1,85 @@
+---
+title: "Module 9 Intro to Statistical Inference "
+author: "Zach C"
+date: "October 14, 2017"
+output: html_document
+---
+##Determining a confidence interval around a Normal distribution 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#Suppose a polling group in the Massachusetts is interested in the proportion of voting-age citizens in their state that already know they will vote for Elizabeth Warren in the upcoming November 6, 2018 midterm elections (don’t forget to vote!). The group obtains a yes or no answer from 1000 suitable randomly selected individuals. Of these individuals, 856 say they know they’ll vote for Senator Warren. How would we characterize the mean and variability associated with this proportion?
+
+n <- 1000
+x <- 856
+phat <- x/n  # our estimate of pi
+phat
+#[1] 0.856
+pop_se <- sqrt((phat) * (1 - phat)/n)
+
+#what is the 95% CI around our estimate of the proportion of people who already know how they will vote?
+
+curve(dnorm(x, mean = phat, sd = pop_se), phat - 4 * pop_se, phat + 4 * pop_se)
+upper <- phat + qnorm(0.975) * pop_se
+lower <- phat - qnorm(0.975) * pop_se
+ci <- c(lower, upper)
+polygon(cbind(c(ci[1], seq(from = ci[1], to = ci[2], length.out = 1000), ci[2]), 
+    c(0, dnorm(seq(from = ci[1], to = ci[2], length.out = 1000), mean = phat, 
+        sd = pop_se), 0)), border = "black", col = "gray")
+abline(v = ci)
+abline(h = 0)
+
+```
+## T-distribution for small sample sizes
+>when the size of our sample is small (n < 30), instead of using the normal distribution to calculate our CIs, statisticians typically use a different distribution to generate the relevant quantiles to multiply the standard error by… the t distribution
+
+>The t distribution is a continuous probability distribution very similar in shape to the normal is generally used when dealing with statistics (such as means and standard deviations) that are estimated from a sample rather than known population parameters. 
+
+>We can think of the t distribution as representing a family of curves that, as the number of degrees of freedom increases, approaches the normal curve. At low numbers of degrees of freedom, the tails of the distribution get fatter.Confidence intervals based on the t distribution are of the form:mean ± T (the quantile from the t distribution) × standard error of the mean. The only change from those based on the normal distribution is that we’ve replaced the Z quantile of the standard normal with a T quantile.
+
+>The code below plots a standard normal distribution and then t distributions with varying degrees of freedom, specified using the df= argument. As for other distributions, R implements density, cumulative probability, quantile, and random functions for the t distribution.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+mu <- 0
+sigma <- 1
+curve(dnorm(x, mu, 1), mu - 4 * sigma, mu + 4 * sigma, main = "Normal Curve=red\nStudent's t=blue", 
+    xlab = "x", ylab = "f(x)", col = "red", lwd = 3)
+for (i in c(1, 2, 3, 4, 5, 10, 20, 100)) {
+    curve(dt(x, df = i), mu - 4 * sigma, mu + 4 * sigma, main = "T Curve", xlab = "x", 
+        ylab = "f(x)", add = TRUE, col = "blue", lty = 5)
+  
+n <- 1e+05
+mu <- 3.5
+sigma <- 4
+x <- rnorm(n, mu, sigma)
+sample_size <- 30
+s <- sample(x, size = sample_size, replace = FALSE)
+m <- mean(s)
+
+lower <- m - qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+upper <- m + qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+ci_norm <- c(lower, upper)
+ci_norm
+# [1] 2.124613 4.709462
+
+#For sample size 30, the difference in the CIs is negligible.
+lower <- m - qt(1 - 0.05/2, df = sample_size - 1) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+upper <- m + qt(1 - 0.05/2, df = sample_size - 1) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+ci_t <- c(lower, upper)
+# [1] 2.068388 4.765687
+
+#if we use a sample size of 5, the CI based on the t distribution is much wider.
+
+sample_size <- 5
+s <- sample(x, size = sample_size, replace = FALSE)
+m <- mean(s)
+lower <- m - qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+upper <- m + qnorm(1 - 0.05/2) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+ci_norm <- c(lower, upper)
+ci_norm
+# [1]  3.204974 12.506507
+
+lower <- m - qt(1 - 0.05/2, df = sample_size - 1) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+upper <- m + qt(1 - 0.05/2, df = sample_size - 1) * sem  # (1-alpha)/2 each in the upper and lower tails of the distribution
+ci_t <- c(lower, upper)
+ci_t
+# [1]  1.26756 14.44392
