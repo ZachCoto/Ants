@@ -135,7 +135,7 @@ t.test(x = x, mu = mu, alternative = "two.sided")
 ```
 
 
-##Comparing Sample Means (2 Sample Tests)
+## Comparing Sample Means (2 Sample Tests)
 
 >Sometimes we want to compare two groups of measurements to one another, which boils down to a hypothesis test for the difference between two means, μ1 and μ2. The null hypothesis is that the difference between the means is zero. Need to consider: if samples are paired (e.g., the same individuals before and after some treatment) or UNPAIRED/ INDEPENDENT (e.g., weights for different samples of black-and-white colobus monkeys collected in the rainy versus dry seasons) and if the variances are equal.
 
