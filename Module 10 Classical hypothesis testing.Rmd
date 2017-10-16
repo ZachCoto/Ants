@@ -4,7 +4,7 @@ author: "Zach C"
 date: "October 15, 2017"
 output: html_document
 ---
-##Overview
+## Overview
 
 >We reject a H0 if the p value obtained for a given Z or T test statistic is < α
 
