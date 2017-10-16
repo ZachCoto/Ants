@@ -1,0 +1,92 @@
+---
+title: "Module 11 Type 1 and 2 errors"
+author: "Zach C"
+date: "October 15, 2017"
+output: html_document
+---
+
+## Bonferroni Correction
+>One way we can address the multiple testing problem discussed above by using what is called the Bonferroni correction, which suggests that when doing a total of k independent hypothesis tests, each with a significance level of α, we should adjust the α level we use to interpret statistical significance as follow: alpha_B= alpha/k. For example, if we run 10 independent hypothesis tests, then we should set our adjusted alpha level for each test as 0.05/10 = 0.005. With the Bonferroni correction, we are essentially saying that we want to control the rate at which we have even one incorrect rejection of H0 given the entire family of tests we do. This is also referred to as limiting the “family-wise error rate” to level alpha.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+alpha <- 0.05
+pvals <- c(1e-04, 0.003, 0.005, 0.01, 0.02, 0.04, 0.045, 0.11, 0.18, 0.23)
+sig <- pvals <= alpha/length(pvals)
+##  [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#first 3 values are less than the adjusted alpha
+```
+
+## Benjamini & Hochberg correction
+>It attempts to control for the “false discovery rate”, which is different than the “family-wise error rate”. Here, we aim to limit the number of false “discoveries” (i.e., incorrect rejections of the null hypothesis) out of a set of discoveries (i.e., out of the set of results where we would reject the null hypothesis) to alpha.
+
+>calculate p values for all tests
+
+>order p values from smallest to largest
+
+>any p < alpha is significant
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+alpha <- 0.05
+psig <- NULL
+pvals <- c(1e-04, 0.003, 0.005, 0.01, 0.02, 0.04, 0.045, 0.11, 0.18, 0.27)
+for (i in 1:length(pvals)) {
+    psig[i] <- alpha * i/length(pvals)
+}
+d <- data.frame(cbind(rank = c(1:10), pvals, psig))
+p <- ggplot(data = d, aes(x = rank, y = pvals)) + geom_point() + geom_line(aes(x = rank, 
+    y = psig))
+p
+sig <- pvals <= psig  # vector of significant pvalues
+#  [1]  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE
+
+```
+## Type 2 Error
+>If the critical value (which, again, is defined by alpha) is shifted to the left, or if mu under the alternative hypothesis shifts left, then beta, the area under the null hypothesis distribution curve to the left of the critical value, increases! Intuitively, this makes sense: the lower the difference between the true muA value and mu0 and/or the higher the alpha level, the harder it will be to reject the null hypothesis that mu = mu0.
+
+>Power is the probability of correctly rejecting a null hypothesis that is untrue. For a test that has a Type II error rate of beta, the statistical power is defined, simply, as 1−beta. Power values of 0.8 or greater are conventionally considered to be high. Power for any given test depends on the difference between mu between groups/treatments, alpha, n, and sigma.
+
+>An effect size is a quantitative measure of the strength of a phenomenon. Here, we are interested in comparing two sample means, and the most common way to describe the effect size is as a standardized difference between the means of the groups being compared. In this case, we divide the difference between the means by the standard deviation: |(mu0 - muA)|/sigma. This results in a scaleless measure. Conventionally, effect sizes of 0.2 or less are considered to be low and of 0.8 or greater are considered to be high.
+
+>In most cases, since we are dealing with limited samples from a population, we will want to use the t rather than the normal distibution as the basis for making our power evaluations. The power.t.test() function lets us easily implement power calculations based on the t distribution, and the results of using it should be very similar to those we found above by simulation. The power.t.test() function takes as possible arguments the sample size (n), the difference (delta) between group means, the standard deviation of the data = sigma, the sig.level = alpha, the test type (“two.sample”, “one.sample”, or “paired”), the alternative test to run (“two.sided”, “one sided”) and the power. Power, n, or the difference between means is left as null and the other arguments are specified. The function then calculates the missing argument.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(manipulate)
+power.test <- function(mu0, muA, sigma, alpha = 0.05, type, alternative) {
+    p <- 0
+    for (i in 2:200) {
+        x <- power.t.test(n = i, delta = abs(muA - mu0), sd = sigma, sig.level = alpha, 
+            power = NULL, type = type, alternative = alternative)
+        p <- c(p, x$power)
+    }
+    d <- data.frame(cbind(1:200, p, 1 - p))
+    critn <- 0
+    for (i in 1:199) {
+        if (p[i] < 0.8 && p[i + 1] >= 0.8) {
+            critn <- i + 1
+        } else {
+            critn <- critn
+        }
+    }
+    names(d) <- c("n", "power", "beta")
+    g <- ggplot(data = d) + xlab("sample size n") + ylab("Type II Error Rate, Beta  (Red)\nand\nPower, 1-Beta (Blue)") + 
+        ggtitle("Power for T Tests\n(assuming equal n and variance across the two groups)") + 
+        ylim(0, 1) + geom_point(aes(x = n, y = power), colour = "blue", alpha = 1/2) + 
+        geom_line(aes(x = n, y = power), colour = "blue", alpha = 1/2) + geom_line(aes(x = n, 
+        y = 0.8), colour = "red", lty = 3) + geom_point(aes(x = n, y = beta), 
+        colour = "red", alpha = 1/2) + geom_line(aes(x = n, y = beta), colour = "red", 
+        alpha = 1/2) + geom_linerange(aes(x = critn, ymin = 0, ymax = 0.8), 
+        colour = "blue", alpha = 1/4) + annotate("text", x = 150, y = 0.5, label = paste("Effect Size = ", 
+        round(abs(mu0 - muA)/sigma, digits = 3), "\nCritical n = ", critn, sep = ""))
+    print(g)
+}
+
+manipulate(power.test(mu0, muA, sigma, alpha, type, alternative), mu0 = slider(-10, 
+    10, initial = 3, step = 1), muA = slider(-10, 10, initial = 0, step = 1), 
+    sigma = slider(1, 10, initial = 3, step = 1), alpha = slider(0.01, 0.1, 
+        initial = 0.05, step = 0.01), alternative = picker("two.sided", "one.sided"), 
+    type = picker("two.sample", "one.sample", "paired"))
+```
