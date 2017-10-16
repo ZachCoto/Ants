@@ -6,7 +6,7 @@ output: html_document
 ---
 ##Overview
 
->We REJECT a H0 if the p value obtained for a given Z or T test statistic is < α
+>We reject a H0 if the p value obtained for a given Z or T test statistic is < α
 
 >CIs for our sample statistic are calculated as mean ± T(1−α/2)
 or Z(1−α/2) x SEM, and we can REJECT a H0 if the (1-α
