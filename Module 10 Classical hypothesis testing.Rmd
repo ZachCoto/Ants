@@ -1,0 +1,472 @@
+---
+title: "Module 10 Classical Hypothesis Testing"
+author: "Zach C"
+date: "October 15, 2017"
+output: html_document
+---
+##Overview
+
+>We REJECT a H0 if the p value obtained for a given Z or T test statistic is < α
+
+>CIs for our sample statistic are calculated as mean ± T(1−α/2)
+or Z(1−α/2) x SEM, and we can REJECT a H0 if the (1-α
+) CI around does not include the expected value of the statistic
+
+>When the sample size > 30, or when we are dealing with proportions, we use Z quantiles for calculating CIs and p values, but for sample size < 30, we use T quantiles
+
+
+## One Sample T and Z test
+
+>to evaluate whether the mean of a single set of observations is significantly different than expected under a null hypothesis 
+
+>Suppose we have a vector describing the adult weights of vervet monkeys trapped in South Africa during the 2016 trapping season. We have the sense they are heavier than vervets we trapped in previous years, which averaged 4.9 kilograms. The mean is 5.324 kilograms. Is the mean significantly greater than our expectation?
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(curl)
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/vervet-weights.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+head(d)
+##   id weight
+## 1  1   5.17
+## 2  2   7.13
+## 3  3   4.70
+## 4  4   6.10
+## 5  5   6.36
+## 6  6   4.93
+
+mean(d$weight)
+## [1] 5.323922
+
+# the data from 2016 and 2017
+mu <- 4.9
+x <- d$weight
+m <- mean(x)
+s <- sd(x)
+n <- length(x)
+sem <- s/sqrt(n)
+
+# Our test statistic is a Z stat: it is effectively the standard normalized position of our sample mean in a distribution centered around the expected population mean.In this case, z is a quantile… the estimated number of standard errors of the mean away from the population mean that our sample falls.If we then want to see if z is significant, we need to calculate the probability of seeing a deviation from the mean as high or higher than this by chance. To do this, we can use the pnorm() function. Because we have converted our sample mean to the standard normal scale, the mean= and sd= arguments of pnorm() are the defaults of 0 and 1, respectively.
+
+z <- (m - mu)/sem
+# [1] 3.103753
+
+p <- 1 - pnorm(z) 
+# [1] 0.0009554144 #
+
+p <- pnorm(z, lower.tail = FALSE)
+# [1] 0.0009554144
+
+#However, as noted above, our sample size from a population is typically limited. So, instead of using the normal distribution to determine the p value of our statistic, we should use the t distribution, which, as we’ve seen, has slightly fatter tails. The statistic and process is exactly the same, though, as for the normal distribution.
+
+p <- 1 - pt(z, df = n - 1)
+# [1] 0.001570945
+
+p <- pt(z, df = n - 1, lower.tail = FALSE)
+# [1] 0.001570945
+
+#R has built into it a single function, t.test()
+t <- t.test(x = x, mu = mu, alternative = "greater")
+## 
+##  One Sample t-test
+## 
+## data:  x
+## t = 3.1038, df = 50, p-value = 0.001571
+## alternative hypothesis: true mean is greater than 4.9
+## 95 percent confidence interval:
+##  5.095021      Inf
+## sample estimates:
+## mean of x 
+##  5.323922
+```
+>Adult lowland woolly monkeys are reported to have an average body weight of 7.2 kilograms. You are working with an isolated population of woolly monkeys from the Colombian Andes that you think may be a different species from the lowland form, and you collect a sample of 15 weights of from adult individuals at that site. From your sample, you calculate a mean of 6.43 kilograms and a standard deviation of 0.98 kilograms. Perform a hypothesis test to test whether body weights in your population are different from the reported average for lowland woolly monkeys by setting up a “two-tailed” hypothesis, carrying out the analysis, and interpreting the p value (assume the significance level is α=0.05). Your sample is < 30, so you should use the t distribution and do a t test. Do your calculations both by hand and using the t.test() function and confirm that they match.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("curl", lib.loc="~/R/win-library/3.4")
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/woolly-weights.csv")
+f
+A connection with                                                                                                                        
+#description "https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/woolly-weights.csv"
+#class       "curl"                                                                                                      
+#mode        "r"                                                                                                         
+#text        "text"                                                                                                      
+#opened      "closed"                                                                                                    
+#can read    "yes"                                                                                                       
+#can write   "no"                                                                                                        
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+d
+#   id weight
+#1   1   6.14
+#2   2   6.19
+#3   3   7.08
+#4   4   5.67
+#5   5   4.83
+#6   6   6.83
+
+mu=7.2
+mu<-7.2
+x <- d$weight
+m<-mean(x)
+sd<-sd(x)
+n<-length(x)
+sem<-sd/(sqrt(n))
+t<-(m-mu)/sem
+t
+#[1] -3.336805
+
+alpha<-0.05
+crit <- qt(1 - alpha/2, df = n - 1)
+test <- t < -crit || t > crit
+test <- abs(t) > crit
+t.test(x = x, mu = mu, alternative = "two.sided")
+
+	#One Sample t-test
+
+#data:  x
+#t = -3.3368, df = 14, p-value = 0.004891
+#alternative hypothesis: true mean is not equal to 7.2
+#95 percent confidence interval:
+# 5.930689 6.923978
+#sample estimates:
+#mean of x 
+# 6.427333 
+
+> #therefore, the two mean weights (6.4kg and 7.2kg) are significantly different and we reject the null
+```
+
+
+##Comparing Sample Means (2 Sample Tests)
+
+>Sometimes we want to compare two groups of measurements to one another, which boils down to a hypothesis test for the difference between two means, μ1 and μ2. The null hypothesis is that the difference between the means is zero. Need to consider: if samples are paired (e.g., the same individuals before and after some treatment) or UNPAIRED/ INDEPENDENT (e.g., weights for different samples of black-and-white colobus monkeys collected in the rainy versus dry seasons) and if the variances are equal.
+
+>Test statistic = T = [(mean2-mean1-expected sample mean differences)]/[squrt(sdv2/n2 - sdv1/n1)]
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Are the mean weights of male and female colobus monkeys different? Create 2 vectors (x and y) and plot as boxplots.
+
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/colobus-weights.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+##   id weight  sex
+## 1  1   7.24 male
+## 2  2   6.09 male
+## 3  3   6.97 male
+## 4  4   6.98 male
+## 5  5   6.08 male
+## 6  6   6.22 male
+
+par(mfrow = c(1, 2))
+boxplot(x, ylim = c(4.5, 8), main = "Weight (kg)", xlab = "Males")
+boxplot(y, ylim = c(4.5, 8), main = "Weight (kg)", xlab = "Females")
+
+m1<-mean(x)
+m2<-mean(y)
+sd1<-sd(x)
+sd2<-sd(y)
+n1<-length(x)
+n2<-length(y)
+
+t <- (m2 - m1)/sqrt(sd2^2/n2 + sd1^2/n1)
+t
+#[1] -11.45952
+
+df <- (s2^2/n2 + s1^2/n1)^2/((s2^2/n2)^2/(n2 - 1) + (s1^2/n1)^2/(n1 - 1))
+df
+#note df = more complicated here 
+# [1] 31.21733
+alpha<-0.05
+crit <- qt(1 - alpha/2, df = 31.21733)
+crit
+#[1] 2.038938
+
+test <- t < -crit || t > crit  # boolean test
+test <- abs(t) > crit
+test
+# [1] TRUE
+
+#or use the t.test function
+t <- t.test(x = x, y = y, mu = 0, alternative = "two.sided")
+t
+## 
+##  Welch Two Sample t-test
+## 
+## data:  x and y
+## t = 11.46, df = 31.217, p-value = 1.023e-12
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  1.191186 1.706814
+## sample estimates:
+## mean of x mean of y 
+##     6.689     5.240
+```
+## Comparing Samples with Equal Variances
+
+>Test statistic = T = [(mean2-mean1-expected sample mean differences)]/[squrt sdvp(1/n2 + 1/n1)]
+
+>pooled sample standev = sdvp = [(n-1)sdv1^2 + (n2-1)sdv2^2]/(n1+n2-2) 
+
+>df = n1+n2-2
+
+>the above sets of data had approximately equal variances, so,
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+s <- sqrt((((n1 - 1) * sd1^2) + ((n2 - 1) * sd2^2))/(n1 + n2 - 2)) #pooleds standev
+t <- (m2 - m1)/(sqrt(s^2 * (1/n1 + 1/n2)))
+t
+#[1] -11.45952
+
+df <- n1 + n2 - 2
+df
+#[1] 38
+
+t <- t.test(x = x, y = y, mu = 0, var.equal = TRUE, alternative = "two.sided")
+t
+
+## 
+##  Two Sample t-test
+## 
+## data:  x and y
+## t = 11.46, df = 38, p-value = 6.787e-14
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  1.193025 1.704975
+## sample estimates:
+## mean of x mean of y 
+##     6.689     5.240
+```
+## Testing for Variance Equality
+
+>A crude test for equality of variances is to divide the larger by the smaller and if the result is < 2, you can go ahead and used the pooled variance version of the test (which has many fewer degrees of freedom). In our case, we cannot, since the ratio of variances exceeds 2…
+
+>var(x)/var(y) 
+>[1] 2.746196
+
+>We can use the var.test() function to conduct an actual statistical test on the ratio of variances, which compares the ratio test statistic we just calculated to an F distribution. The F distribution is often used to model ratios of random variables and thus is useful in regression applications and, as here, for testing whether variances from two samples are different. It is dependent upon the specification of a pair of degrees of freedom values supplied as the arguments df1= and df2= (or inferred from the number of observations in each sample).
+
+>vt <- var.test(x, y)
+vt
+>F test to compare two variances
+>data:  x and y
+>F = 2.7462, num df = 19, denom df = 19, p-value = 0.03319
+>alternative hypothesis: true ratio of variances is not equal to 1
+>95 percent confidence interval:
+>1.086978 6.938128
+>sample estimates:
+>ratio of variances 
+>2.746196
+
+
+## Comparing Paired Samples
+
+>the null hypothesis is that the mean of individual paired differences between the two samples (e.g., before and after) is zero.
+
+>T statistic = (d-mu)/sqrt(std^2 / n)
+>d = mean of differences between sample pairs
+>mu = expected mean of differences
+>std = standard dev in set of differences 
+>n = # of pairs
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Is there a sigdiff in IQ before and after the test?
+
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/iqs.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+d
+
+x <- d$IQ.before - d$IQ.after
+m <- mean(x)
+mu <- 0  
+s <- sd(x)
+n <- length(x)
+sem <- s/sqrt(n)
+par(mfrow = c(1, 2))
+boxplot(d$IQ.before, ylim = c(115, 145), main = "IQ", xlab = "Before")
+boxplot(d$IQ.after, ylim = c(115, 145), main = "IQ", xlab = "After")
+
+#variances looks signif diff, can test this.
+a<-d$IQ.before
+b<-d$IQ.after
+vt <- var.test(a,b)
+vt
+
+#F test to compare two variances
+
+#data:  a and b
+#F = 3.8882, num df = 19, denom df = 19, p-value = 0.004796
+#alternative hypothesis: true ratio of variances is not equal to 1
+#95 percent confidence interval:
+#1.539016 9.823470
+#sample estimates:
+#ratio of variances 
+#3.888249 
+
+t <- (m - mu)/sem
+t
+#[1] -1.789636
+
+alpha <- 0.05
+crit <- qt(1 - alpha/2, df = n - 1)
+crit
+#2.093024
+
+test <- t < -crit || t > crit  # boolean test
+test
+#[1] FALSE, note this was a 2 tailed test (hence alpha/2, so since abs(t) isn't > crit, cannot reject null hypothesis)
+
+#or just use the t function and see p value >0.05
+t.test(x, df = n - 1, alternative = "two.sided")
+
+## 
+##  One Sample t-test
+## 
+## data:  x
+## t = -1.7896, df = 19, p-value = 0.08946
+## alternative hypothesis: true mean is not equal to 0
+## 95 percent confidence interval:
+##  -6.762409  0.528409
+## sample estimates:
+## mean of x 
+##    -3.117
+# in other words, -3.117 is not significantly different from 0 for this distribution
+```
+## Testing Sample proportions with a 1 sample Z test
+
+>the sampling distribution for another kind of sample statistic, the number of “successes” x out of a series of k trials is also roughly normally distributed. If the true population proportion of “successes” is π, then the sampling distribution for the proportion of successes in a sample of size n is expected to be roughly normally distributed with mean = pi and standard error = sqrt(pi(1−pi)/n).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# create a population of 500 ones and 500 zeros, so pi = 0.5
+pop <- c(rep(0, 500), rep(1, 500))
+
+#take 1000 random sample means of samples n=10, calculate the proportion of ones
+pi <- 0.5
+x <- NULL
+n <- 10
+for (i in 1:1000) {
+    x[i] <- mean(sample(pop, size = n, replace = FALSE))
+}
+m <- mean(x)
+m
+[1] 0.4992
+pop_se <- sqrt(pi * (1 - pi)/n)
+pop_se
+[1] 0.1581139
+
+#This normal approximation is true as long as n is fairly large and pi is not close to 0 or 1. One rule of thumb is to check that both n × pi and n(1−pi) are greater than 5.
+
+# we can construct Z statistics for proportions like we constructed Z and T statistics for means and test those proportions for differences from an expected value or for differences between two sample proportions. 
+
+#z = (observed statistic - expected statistic) / standard error
+#SE = (proportion in sample - pi)/ {sqrt[pi(1-pi)/n]}, n = # of observations
+
+#ex A neotropical ornithologist working in the western Amazon deploys 30 mist nets in a 100 ha grid. She monitors the nets on one morning and records whether or not a she captures any birds in the net (i.e., a “success” or “failure” for every net during a netting session). The following vector summarizes her netting results. Her netting success over the previous three seasons suggests that she should catch birds in 80% of her nets. This season, she feels, her success rate is lower than in previous years. Does her trapping data support this hypothesis?
+
+#Ho = cathes = 0.8
+#Ha = catches < 0.8
+
+v <- c(0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 
+    1, 1, 0, 1, 0, 1, 1)
+
+n<-30
+pi<-0.8
+nxpi<-n*pi
+nxpi
+[1] 24
+altnxpi<-n*0.2
+altnxpi
+[1] 6
+#both >5, so distribution is likely normal
+
+phat <- mean(v)
+phat
+[1] 0.6 #mean of v, observed statistic for z stat calc
+pi <- 0.8
+n <- 30
+z <- (phat - pi)/sqrt(pi * (1 - pi)/30)
+z
+[1] -2.738613
+
+p <- pnorm(z, lower.tail = TRUE) #We use the lower.tail=TRUE argument because we’re testing a lower-tailed one-tailed hypothesis.
+p
+[1] 0.00308495
+
+lower <- phat - qnorm(0.975) * sqrt(phat * (1 - phat)/30)
+upper <- phat + qnorm(0.975) * sqrt(phat * (1 - phat)/30)
+ci <- c(lower, upper)
+ci
+[1] 0.4246955 0.7753045 #Note that the CI does not include the value of π… rather, π > is greater than the upper bound of the CI, suggesting that the observed success rate is indeed lower than in previous years.
+
+```
+## Comparing two sample proportions with a 2 sample Z test
+
+>z = (P1 + P2 - pi)/{sqrt[p*(1-p*)(1/n1 + 1/n2)]}
+
+>P1 and P2 = proportion successes fpr both samples
+
+>p* = pooled success proportion (x1 + x2)/(n1 + n2)
+
+>n1 and n2 = # samples for each group 
+
+>A biologist studying two species of tropical bats captures females of both species in a mist net over the course of week of nightly netting. For each species, the researcher records whether females are lactating or not. The two vectors below summarize the data for each species.Based on your mist netting data, do the species differ significantly in the proportion of lactating females? 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+v1 <- c(1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 
+    1, 0)
+v2 <- c(1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 
+    0, 1, 1, 0, 1, 1, 1)
+
+pstar<-(sum(v1) + sum(v2))/(length(v1) + length(v2))
+pstar
+#[1] 0.6363636
+
+phat1 <- mean(v1)
+phat1
+#[1] 0.56
+
+phat2 <- mean(v2)
+phat2
+#[1] 0.7
+
+pi <- 0
+z <- (phat2 - phat1)/sqrt((pstar * (1 - pstar)) * (1/length(v1) + 1/length(v2)))
+z
+#[1] 1.074709
+
+p <- 1 - pnorm(z, lower.tail = TRUE) + pnorm(z, lower.tail = FALSE)
+p
+#[1] 0.2825049
+
+crit <- qnorm(1 - alpha/2) 
+crit
+#[1] 1.959964
+
+test <- p < -crit || p > crit  
+test
+[1] FALSE
+
+#or use proportion test function
+pt <- prop.test(x = c(sum(v2), sum(v1)), n = c(length(v2), length(v1)), alternative = "two.sided", 
+    correct = FALSE)
+pt
+
+#2-sample test for equality of proportions without continuity correction
+
+#data:  c(sum(v2), sum(v1)) out of c(length(v2), length(v1))
+#X-squared = 1.155, df = 1, p-value = 0.2825
+#alternative hypothesis: two.sided
+#95 percent confidence interval:
+ #-0.1144634  0.3944634
+#sample estimates:
+#prop 1 prop 2 
+  #0.70   0.56 
+```
+
+
+
+
+
+
