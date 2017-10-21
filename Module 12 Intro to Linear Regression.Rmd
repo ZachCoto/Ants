@@ -1,0 +1,280 @@
+---
+title: "Module 12 Intro to Linear Regression"
+author: "Zach C"
+date: "October 17, 2017"
+output: html_document
+---
+## Analysis of Covariance and Correlation 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(curl)
+library(ggplot2)
+f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall17/zombies.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+head(d)
+plot(data = d, height ~ weight) #scatter plot of x=weight, y=height
+
+```
+>Covariance: expresses how much two numeric variables “change together” and whether that change is positive or negative.The covariance is simply the product of the deviations of each of two variables from their respective means divided by sample size
+
+>cov(X,y) = sigma{[(x-xmean)(y-ymean)]/(n-1)}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#What's the covariance between zombie weight and zombie height?
+w<-d$weight
+h<-d$height
+n<-length(w)
+cov_wh <- sum((w - mean(w)) * (h - mean(h)))/(n - 1)
+cov_wh
+#[1] 66.03314
+```
+>Correlation Coefficient = standardized form of the covariance, which summarizes on a standard scale, -1 to +1, both the strength and direction of a relationship. The correlation is simply the covariance divided by the product of the standard deviation of both variables.
+
+>cor(x,y) = [cov(x,y)]/[sd(x)*sd(y)]
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#What's the correlation between zombie weight and zombie height?
+sd_w<-sd(w)
+sd_h<-sd(h)
+cor_wh<-cov_wh/(sd_w*sd_h)
+cor_wh
+#[1] 0.8325862
+
+cor(w, h)
+#[1] 0.8325862
+#can also specify type of correlation coefficient via method= "pearson" (0.8325862),"kendall" (0.6331932) or "spearman" (0.82668)
+```
+## Analysis of Regression
+>In regression analysis, we are typically identifying and exploring linear models, or functions, that describe the relationship between variables.The general purpose of linear regression is to come up with a model or function that estimates the mean value of one variable, i.e., the response or outcome variable, given the particular value(s) of another variable or set of variables, i.e., the predictor variable(s).
+
+>Bivariate Regression: we have a single predictor and a single response variable. In our case, we may be interested in coming up with a linear model that estimates the mean value for zombie height (as the response variable) given zombie weight (as the predictor variable). That is, we want to explore functions that link these two variables and choose the best one.In general, the model for linear regression represents a dependent (or response) variable, Y as a linear function of the independent (or predictor) variable, X.
+
+>Y = Bo + B1*Xi +ei
+
+>Bo = intercept, B1 = slope, ei = error term, 
+
+>A regression analysis calls for estimating the values of all three parameters (Bo, B1, and the residuals or error term). How this is accomplished will depend on what assumptions are employed in the analysis. The regression model posits that X is the cause of Y. B1 and B0 are referred to as the regression coefficients, and it is those that our regression analysis is trying to estimate, while minimizing, according to some criterion, the error term. This process of estimation is called “fitting the model.”
+
+>A typical linear regression analysis further assumes that X, our “independent” variable, is controlled and thus measured with much greater precision than Y, our “dependent” variable. Thus the error, ei is assumed to be restricted to the Y dimension, with little or no error in measuring X, and we employ “ordinary least squares” as our criterion for best fit.
+
+>What does this mean? Well, we can imagine a family of lines of different β1 and β0 going through this cloud of points, and the best fit criterion we use is to find the line whose coefficients minimize the sum of the squared deviations of each observation in the Y direction from that predicted by the line. This is the basis of ordinary least squares or OLS regression. We want to wind up with an equation that tells us how Y varies in response to changes in X.
+
+## Model 1 Regression
+
+>That is, we want to find a B1 and B0 that minimizes sigma[(y-ypredicted)]^2 which is equivalent to sigma[y-(B1*x + B0)]^2 or sigma[height-(B1*weight + B0)]^2
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#Fit model by hand: Estimate the slope, which we can do if we first “center” each of our variables by subtracting the mean from each value (this shifts the distribution to eliminate the intercept term)
+y <- h - mean(h)
+x <- w - mean(w)
+z <- data.frame(cbind(x, y))
+g <- ggplot(data = z, aes(x = x, y = y)) + geom_point()
+g
+# returns scatter plot of deviations in each variab;e
+
+#Now we can minimize/ find "best" slope, 
+slope.test <- function(beta1) {
+    g <- ggplot(data = z, aes(x = x, y = y))
+    g <- g + geom_point()
+    g <- g + geom_abline(intercept = 0, slope = beta1, size = 1, colour = "blue", 
+        alpha = 1/2)
+    ols <- sum((y - beta1 * x)^2)
+    g <- g + ggtitle(paste("Slope = ", beta1, "\nSum of Squared Deviations = ", 
+        round(ols, 3)))
+    g
+}
+
+manipulate(slope.test(beta1), beta1 = slider(-1, 1, initial = 0, step = 0.005))
+beta1 <- cor(w, h) * (sd(h)/sd(w)) # B1 = cor(x,y)(sdy/sdx) = cov(x,y) / var(x)
+beta1
+#[1] 0.1950187 (B1)
+beta1 <- cov(w, h)/var(w)
+beta1
+#[1] 0.1950187
+
+#To find B0, we can simply plug back into our original regression model. The line of best fit has to run through the centroid of our data points, which is the point determined by the mean of the x values and the mean of the y values
+
+beta0 <- mean(h) - beta1 * mean(w)
+beta0
+#[1] 39.56545 (B0)
+
+#Note that in the example above, we have taken our least squares criterion to mean minimizing the deviation of each of our Y variables from a line of best fit in a dimension perpendicular to the Y axis. In general, this kind of regression, where deviation is measured perpendicular to one of the axes, is known as Model I regression, and is used when the levels of the predictor variable are either measured without error (or, practically speaking, are measured with much less uncertainty than those of the response variable) or are set by the researcher (e.g., for defined treatment variables in an ecological experiment).
+```
+## Using the lm() Function for Regression Analysis
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+m <- lm(height ~ weight, data = d)
+m
+#Call:
+#lm(formula = height ~ weight, data = d)
+
+#Coefficients:
+#(Intercept)       weight  
+#     39.565        0.195  
+
+names(m)
+#[1] "coefficients"  "residuals"     "effects"       "rank"          "fitted.values"
+ #[6] "assign"        "qr"            "df.residual"   "xlevels"       "call"         
+#[11] "terms"         "model"
+
+m$coefficients
+# (Intercept)      weight 
+#  39.5654460   0.1950187
+
+g <- ggplot(data = d, aes(x = weight, y = height))
+g <- g + geom_point()
+g <- g + geom_smooth(method = "lm", formula = y ~ x)
+g
+#Returns scatter plot of height x weight 
+```
+## Model 2 Regression
+
+>The assumption of greater uncertainty in our response variable than in our predictor variable may be reasonable in controlled experiments, but for natural observations, measurement of the X variable also typically involves some error and, in fact, in many cases we may not be concered about PREDICTING Y from X but rather want to treat both X and Y as independent variables and explore the relationship between them or consider that both are dependent on some additional parameter, which may be unknown. That is, both are measured rather than “controlled” and both include uncertainty. We thus are not seeking an equation of how Y varies with changes in X
+but rather we are look for how they both co-vary in response to some other variable or process.That is, Model 2 accounts for error in both x and y variables, not just y variable. Under these conditions Model II regression analysis may be more appropriate. In Model II approaches, a line of best fit is chosen that minimizes in some way the direct distance of each point to the best fit line. There are several different types of Model II regression, and which to use depends upon the specifics of the case. Common approaches are know as major axis, ranged major axis, and reduced major axis (a.k.a. standard major axis) regression.
+The {lmodel2} package allows us to do Model II regression easily (as well as Model I). In this package, the signficance of the regression coefficients is determined based on permutation.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lmodel2)
+mII <- lmodel2(height ~ weight, data = d, range.y = "relative", range.x = "relative", 
+    nperm = 1000)
+mII
+## 
+## Model II regression
+## 
+## Call: lmodel2(formula = height ~ weight, data = d, range.y =
+## "relative", range.x = "relative", nperm = 1000)
+## 
+## n = 1000   r = 0.8325862   r-square = 0.6931998 
+## Parametric P-values:   2-tailed = 2.646279e-258    1-tailed = 1.32314e-258 
+## Angle between the two OLS regression lines = 4.677707 degrees
+## 
+## Permutation tests of OLS, MA, RMA slopes: 1-tailed, tail corresponding to sign
+## A permutation test of r is equivalent to a permutation test of the OLS slope
+## P-perm for SMA = NA because the SMA slope cannot be tested
+## 
+## Regression results
+##   Method Intercept     Slope Angle (degrees) P-perm (1-tailed)
+## 1    OLS  39.56545 0.1950187        11.03524       0.000999001
+## 2     MA  39.10314 0.1982313        11.21246       0.000999001
+## 3    SMA  33.92229 0.2342325        13.18287                NA
+## 4    RMA  36.80125 0.2142269        12.09153       0.000999001
+## 
+## Confidence intervals
+##   Method 2.5%-Intercept 97.5%-Intercept 2.5%-Slope 97.5%-Slope
+## 1    OLS       38.39625        40.73464  0.1869597   0.2030778
+## 2     MA       37.92239        40.28020  0.1900520   0.2064362
+## 3    SMA       32.74259        35.06211  0.2263120   0.2424301
+## 4    RMA       35.51434        38.06296  0.2054593   0.2231695
+## 
+## Eigenvalues: 351.6888 5.48735 
+## 
+## H statistic used for computing C.I. of MA: 6.212738e-05
+
+plot(mII, "OLS")
+#plot based on MII w/ OLS regression. You can also choose MA,SMA and RMA for other plots.
+#Note that, here, running lmodel2() and using OLS to detemine the best coefficients yields equivalent results to our Model I regression done above using lm()
+
+```
+## Statistical Inference in Regression
+
+>we want to be able to evaluate whether there is statistical evidence that there is indeed a relationship between these variables. If so, then our regression coefficients can indeed allow us to estimate or predict the value of one variable given another. Additionally, we also would like to be able to extend our estimates from our sample out to the population they are drawn from.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+m <- lm(data = d, height ~ weight)
+summary(m)
+## Call:
+## lm(formula = height ~ weight, data = d)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -7.1519 -1.5206 -0.0535  1.5167  9.4439 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) 39.565446   0.595815   66.41   <2e-16 ***
+## weight       0.195019   0.004107   47.49   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 2.389 on 998 degrees of freedom
+## Multiple R-squared:  0.6932, Adjusted R-squared:  0.6929 
+## F-statistic:  2255 on 1 and 998 DF,  p-value: < 2.2e-16
+
+## Threfore, about 69% of the variation in zombie height is explained by zombie weight based on R squared value.
+
+ci <- confint(m, level = 0.95)  #confidence interval around the regression line
+ci
+
+##                  2.5 %     97.5 %
+## (Intercept) 38.3962527 40.7346393
+## weight       0.1869597  0.2030778
+```
+>We can calculate CONFIDENCE INTERVALS (CIs) around the predicted mean value of y for each value of x (which addresses our uncertainly in the estimate of the mean), and we can also get PREDICTION INTERVALS (PIs) around our prediction (which gives the range of actual values of y we might expect to see at a given value of x).The predict() function allows us to generate predicted (i.e., ) values for a vector of values of x. Note the structure of the 2nd argument in the function… it includes the x variable name, and we pass it a vector of values. Here, I pass it a vector of actual x values.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+m <- lm(data = d, height ~ weight)
+h_hat <- predict(m, newdata = data.frame(weight = d$weight))
+df <- data.frame(cbind(d$weight, d$height, h_hat))
+names(df) <- c("x", "y", "yhat")
+head(df)
+
+##          x        y     yhat
+## 1 132.0872 62.88951 65.32492
+## 2 146.3753 67.80277 68.11137
+## 3 152.9370 72.12908 69.39103
+## 4 129.7418 66.78484 64.86753
+## 5 132.4265 64.71832 65.39109
+## 6 152.5246 71.24326 69.31059
+
+g <- ggplot(data = df, aes(x = x, y = yhat))
+g <- g + geom_point()
+g <- g + geom_point(aes(x = x, y = y), colour = "red")
+g <- g + geom_segment(aes(x = x, y = yhat, xend = x, yend = y))
+g #Returns scatter plot w/ predicted values an d residuals (the difference between the observed and the fitted or predicted value of y at the given x values).
+
+#The predict() function also allows us to easily generate confidence intervals around our predicted mean value for y values easily and these can be plotted)
+
+ci <- predict(m, newdata = data.frame(weight = d$weight), interval = "confidence", 
+    level = 0.95)  # for a vector of values
+head(ci)
+##        fit      lwr      upr
+## 1 65.32492 65.14872 65.50111
+## 2 68.11137 67.96182 68.26092
+## 3 69.39103 69.22591 69.55615
+## 4 64.86753 64.68044 65.05462
+## 5 65.39109 65.21636 65.56582
+## 6 69.31059 69.14691 69.47428
+
+df <- cbind(df, ci)
+names(df) <- c("x", "y", "yhat", "CIfit", "CIlwr", "CIupr")
+g <- ggplot(data = df, aes(x = x, y = y))
+g <- g + geom_point(alpha = 1/2)
+g <- g + geom_line(aes(x = x, y = CIfit), colour = "black")
+g <- g + geom_line(aes(x = x, y = CIlwr), colour = "blue")
+g <- g + geom_line(aes(x = x, y = CIupr), colour = "blue")
+g #returns plot of points with CIs
+
+#The same predict() function also allows us to easily generate prediction intervals for values of y at each x.
+
+pi <- predict(m, newdata = data.frame(weight = d$weight), interval = "prediction", 
+    level = 0.95)
+df <- cbind(df, pi)
+names(df) <- c("x", "y", "yhat", "CIfit", "CIlwr", "CIupr", "PIfit", "PIlwr", 
+    "PIupr")
+g <- g + geom_line(data = df, aes(x = x, y = PIlwr), colour = "red")
+g <- g + geom_line(data = df, aes(x = x, y = PIupr), colour = "red")
+g #returns plot with PIs and CIs
+```
+>CI band shows where the mean height is expected to fall in 95% of samples and the PI band shows where the individual points are expected to fall 95% of the time.
+
+>From our various plots above, it’s clear that our model is not explaining all of the variation we see in our dataset… our y points do not all fall on the yhat line but rather are distributed around it. The distance of each of these points from the predicted value for y at that value of x is known as the “residual”. We can think about the residuals as “what is left over”" after accounting for the predicted relationship between x and y. Residuals are often thought of as estimates of the “error” term in a regression model, and most regression analyses assume that residuals are random normal variables with uniform variance across the range of x values (more on this below). In ordinary least squares regression, the line of best fit minimizes the sum of the squared residuals, and the expected value for a residual is 0. Residuals are also used to create “covariate adjusted” variables, as they can be thought of as the response variable, y, with the linear effect of the predictor variable(s) removed. We’ll return to this idea when we move on to multivariate regression.
+
+```
+
+
+
